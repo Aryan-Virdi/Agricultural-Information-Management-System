@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS soilsample (
     ss_silt DECIMAL(3,2) NOT NULL
     ss_clay DECIMAL(3,2) NOT NULL
     ss_phvalue DECIMAL(4,2) NOT NULL
-    -- NPK expressed in ppm with 0.01 precision (xxxxx.yy)
+    -- NPK expressed in parts per million with 0.01 precision (xxxxx.yy)
     ss_nitrogen_ppm DECIMAL(7,2) NOT NULL
     ss_phosphorus_ppm DECIMAL(7,2) NOT NULL
     ss_potassium_ppm DECIMAL(7,2) NOT NULL
