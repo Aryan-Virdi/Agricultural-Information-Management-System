@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS soilsample (
     ss_sand DECIMAL(3,2) NOT NULL,
     ss_silt DECIMAL(3,2) NOT NULL,
     ss_clay DECIMAL(3,2) NOT NULL,
-    ss_phvalue DECIMAL(4,2) NOT NULL,
+    ss_ph DECIMAL(4,2) NOT NULL,
     -- NPK expressed in parts per million with scale of 5 and 0.01 precision (xxxxx.yy)
     ss_nitrogen_ppm DECIMAL(7,2) NOT NULL,
     ss_phosphorus_ppm DECIMAL(7,2) NOT NULL,
@@ -45,4 +45,23 @@ CREATE TABLE IF NOT EXISTS soilsample (
     ss_zinc_ppm DECIMAL(8,3) NOT NULL,
     -- Reamining notes and comments.
     ss_comment VARCHAR(500)
+);
+
+CREATE TABLE IF NOT EXISTS crop (
+    c_cropkey DECIMAL(4,0) NOT NULL,
+    c_name VARCHAR(100) NOT NULL,
+    c_scientific VARCHAR(128),
+    c_daystomature DECIMAL(5,0) NOT NULL,
+    c_seasonkey DECIMAL(2,0) NOT NULL,
+    c_ph DECIMAL (4,2) NOT NULL,
+    c_germ DECIMAL (5,2) NOT NULL,  -- Germination rate as a percentage.
+    c_water DECIMAL(5,0)            -- Expected water usage of crop in mm/year
+    -- Omitting nutrient use for now.
+);
+
+CREATE TABLE IF NOT EXISTS season (
+    s_seasonkey DECIMAL(2,0) NOT NULL,
+    s_name VARCHAR(8) NOT NULL,
+    s_startdate DATE NOT NULL,
+    s_enddate DATE NOT NULL
 );
