@@ -83,11 +83,10 @@ CREATE TABLE IF NOT EXISTS fieldcrop (
 );
 
 CREATE TABLE IF NOT EXISTS fieldmaintenance (
-    fldm_fieldkey       DECIMAL(12,0) NOT NULL,
-    fldm_maintenancekey DECIMAL(4,0) NOT NULL,
-    fldm_concentration  DECIMAL(5,2) NOT NULL,
-    fldm_amount         DECIMAL(5,2),      -- Amount may be unkown, but we should always know the concentration.
-    fldm_begindate      DATE NOT NULL,
-    fldm_enddate        DATE NOT NULL,
-
+    fldm_fieldkey           DECIMAL(12,0) NOT NULL,
+    fldm_maintenancekey     DECIMAL(4,0) NOT NULL,
+    fldm_concentration      DECIMAL(5,2) NOT NULL,
+    fldm_amount             DECIMAL(5,2),      -- Amount may be unkown, but we should always know the concentration.
+    fldm_begindate          DATE NOT NULL,
+    fldm_enddate            DATE NOT NULL,
 );
