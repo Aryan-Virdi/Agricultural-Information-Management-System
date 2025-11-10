@@ -55,8 +55,9 @@ CREATE TABLE IF NOT EXISTS crop (
     c_seasonkey DECIMAL(2,0) NOT NULL,
     c_ph DECIMAL (4,2) NOT NULL,
     c_germ DECIMAL (5,2) NOT NULL,  -- Germination rate as a percentage.
-    c_water DECIMAL(5,0)            -- Expected water usage of crop in mm/year
-    -- Omitting nutrient use for now.
+    c_water DECIMAL(5,0),           -- Expected water usage of crop in mm/year
+    -- Omitting nutrient use numerics, at least for now.
+    c_nutrientuse VARCHAR(125)
 );
 
 CREATE TABLE IF NOT EXISTS season (
@@ -64,4 +65,11 @@ CREATE TABLE IF NOT EXISTS season (
     s_name VARCHAR(8) NOT NULL,
     s_startdate DATE NOT NULL,
     s_enddate DATE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS maintenance (
+    m_maintenancekey DECIMAL(5,2) NOT NULL,
+    m_category VARCHAR(50) NOT NULL,
+    m_activeingredient VARCHAR(80) NOT NULL,
+    m_notes VARCHAR(250)
 );
