@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS field (
 
 CREATE TABLE IF NOT EXISTS soiltype (
     st_soilkey      DECIMAL(3,0) PRIMARY KEY,
+    st_soil_texture VARCHAR(16) NOT NULL,
     -- Percentages to be expressed as xxx.yy (0.01 precision, scale of 5).
     -- This data is not meant to be used to measure true soil composition.
     -- It is meant to indicate the average percentages for this particular soil type.
