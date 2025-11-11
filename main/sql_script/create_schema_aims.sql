@@ -2,8 +2,7 @@ CREATE TABLE IF NOT EXISTS farmer (
     f_farmerkey     DECIMAL(9,0) PRIMARY KEY,
     f_fieldkey      DECIMAL(12,0) NOT NULL,
     f_firstname     VARCHAR(25) NOT NULL,
-    f_surname       VARCHAR(25) NOT NULL,
-    FOREIGN KEY (f_fieldkey) REFERENCES field(fld_fieldkey)
+    f_surname       VARCHAR(25) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS field (
@@ -44,7 +43,7 @@ CREATE TABLE IF NOT EXISTS soilsample (
     ss_mercury_ppm      DECIMAL(8,3) NOT NULL,
     ss_nickel_ppm       DECIMAL(8,3) NOT NULL,
     ss_copper_ppm       DECIMAL(8,3) NOT NULL,
-    ss_chromium_ppm     DECIMAL(8.3) NOT NULL,
+    ss_chromium_ppm     DECIMAL(8,3) NOT NULL,
     ss_cadmium_ppm      DECIMAL(8,3) NOT NULL,
     ss_arsenic_ppm      DECIMAL(8,3) NOT NULL,
     ss_zinc_ppm         DECIMAL(8,3) NOT NULL,
