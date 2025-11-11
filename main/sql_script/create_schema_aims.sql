@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS season (
 
 CREATE TABLE IF NOT EXISTS maintenance (
     m_maintenancekey    DECIMAL(4,0) PRIMARY KEY,
-    m_category          VARCHAR(50) NOT NULL,
+    m_category          VARCHAR(30) NOT NULL,
+    m_name              VARCHAR(30) NOT NULL,
     m_activeingredient  VARCHAR(80) NOT NULL,
     m_notes             VARCHAR(250)
 );
