@@ -1,30 +1,30 @@
-1,Fertilizer,AgriBoost 46N,Urea (46-0-0),High-nitrogen granular fertilizer; apply to dry foliage and water in. Avoid windy conditions.
-2,Fertilizer,PhosPro MAP,Monoammonium Phosphate (11-52-0),Supplies nitrogen and phosphorus for early crop development; do not mix with alkaline materials.
-3,Fertilizer,GreenGrow 15-15-15,NPK Compound (15-15-15),Balanced nutrient source for general crop use; suitable for side-dressing and broadcasting.
-4,Fertilizer,K-Mag Plus,Potassium Magnesium Sulfate,Provides potassium, magnesium, and sulfur; low chloride content; suitable for sensitive crops.
-5,Herbicide,Roundup PowerMax,Glyphosate,Non-selective systemic herbicide. Apply to actively growing weeds; avoid drift onto crops.
-6,Herbicide,Aatrex 4L,Atrazine,Selective herbicide for corn and sorghum; avoid sandy soils with low organic matter.
-7,Herbicide,Dual II Magnum,S-metolachlor,Pre-emergent herbicide for grass and small-seeded broadleaf weeds. Incorporate before rainfall.
-8,Pesticide,Admire Pro,Imidacloprid,Systemic insecticide targeting sap-feeding insects. Avoid during pollination to protect bees.
-9,Pesticide,Radiant SC,Spinetoram,Fast-acting insecticide for lepidopteran pests. Apply during cool hours to reduce volatility.
-10,Pesticide,Tracer,Spinosad,Natural-origin insecticide; low toxicity to mammals; avoid repeated use to prevent resistance.
-11,Fungicide,Dithane M-45,Mancozeb,Broad-spectrum protective fungicide. Do not apply within 7 days of harvest.
-12,Fungicide,Kocide 3000,Copper Hydroxide,Organic-approved fungicide; avoid overuse to prevent copper buildup in soil.
-13,Fungicide,Quadris Flowable,Azoxystrobin,Systemic fungicide effective against rusts and blights; apply preventatively.
-14,Fungicide,Tilt 250 EC,Propiconazole,Triazole fungicide; effective against leaf spots and mildews; rotate modes of action.
-15,Top Dressing,Compost Supreme,Composted Chicken Manure,Rich in nitrogen and organic matter; apply 2–3 tons/acre; incorporate to minimize odor.
-16,Top Dressing,LeafMulch Premium,Decomposed Leaf Litter,Excellent for moisture retention and weed suppression; ensure composted to avoid nitrogen drawdown.
-17,Top Dressing,FarmStraw Cover,Straw Mulch,Reduces erosion and conserves soil moisture; ensure mulch is seed-free before application.
-18,Top Dressing,WoodChip Blend,Aged Wood Chips,Improves structure and microbial activity; avoid using fresh chips to prevent nitrogen immobilization.
-19,Fertilizer,SulfaGreen 20S,Ammonium Sulfate (21-0-0-24S),Provides nitrogen and sulfur; acidifies soil slightly; ideal for alkaline soils.
-20,Herbicide,Valor SX,Flumioxazin,Pre-emergent herbicide; excellent for broadleaf weed control. Avoid application on sandy soils.
-21,Pesticide,Coragen,Chlorantraniliprole,Effective against chewing insects; long residual activity; compatible with IPM programs.
-22,Fungicide,Revus Top,Mandipropamid + Difenoconazole,Dual-action fungicide for late blight and downy mildew; apply preventatively.
-23,Fertilizer,NitroMax Liquid,Liquid UAN (32%),Fast-acting nitrogen fertilizer for foliar and soil application; mix with water before spraying.
-24,Herbicide,Basagran,Bentazon,Post-emergent selective herbicide for broadleaf weeds; avoid during drought stress.
-25,Fungicide,Bravo Weather Stik,Chlorothalonil,Protective fungicide with good rainfastness; do not exceed maximum seasonal rates.
-26,Pesticide,Warrior II,Lambda-cyhalothrin,Broad-spectrum pyrethroid insecticide; apply when insects first appear.
-27,Fertilizer,ProSoil BioMix,Organic Compost Blend,Enhances soil microbiology and nutrient retention; safe for all crop types.
-28,Fungicide,Headline SC,Pyraclostrobin,Strobilurin fungicide with translaminar movement; use as part of a rotation program.
-29,Herbicide,Harness Extra,Acetochlor + Atrazine,Pre-emergent herbicide for corn; apply before crop emergence.
-30,Pesticide,Transform WG,Sulfloxaflor,Targets aphids and whiteflies; minimal impact on beneficial insects if applied correctly.
+1,Fertilizer,AgriBoost 46N,Urea (46-0-0),"High-nitrogen granular fertilizer; apply to dry foliage and water in. Avoid windy conditions."
+2,Fertilizer,PhosPro MAP,Monoammonium Phosphate (11-52-0),"Supplies nitrogen and phosphorus for early crop development; do not mix with alkaline materials."
+3,Fertilizer,GreenGrow 15-15-15,NPK Compound (15-15-15),"Balanced nutrient source for general crop use; suitable for side-dressing and broadcasting."
+4,Fertilizer,K-Mag Plus,Potassium Magnesium Sulfate,"Provides potassium, magnesium, and sulfur; low chloride content; suitable for sensitive crops."
+5,Herbicide,Roundup PowerMax,Glyphosate,"Non-selective systemic herbicide. Apply to actively growing weeds; avoid drift onto crops."
+6,Herbicide,Aatrex 4L,Atrazine,"Selective herbicide for corn and sorghum; avoid sandy soils with low organic matter."
+7,Herbicide,Dual II Magnum,S-metolachlor,"Pre-emergent herbicide for grass and small-seeded broadleaf weeds. Incorporate before rainfall."
+8,Pesticide,Admire Pro,Imidacloprid,"Systemic insecticide targeting sap-feeding insects. Avoid during pollination to protect bees."
+9,Pesticide,Radiant SC,Spinetoram,"Fast-acting insecticide for lepidopteran pests. Apply during cool hours to reduce volatility."
+10,Pesticide,Tracer,Spinosad,"Natural-origin insecticide; low toxicity to mammals; avoid repeated use to prevent resistance."
+11,Fungicide,Dithane M-45,Mancozeb,"Broad-spectrum protective fungicide. Do not apply within 7 days of harvest."
+12,Fungicide,Kocide 3000,Copper Hydroxide,"Organic-approved fungicide; avoid overuse to prevent copper buildup in soil."
+13,Fungicide,Quadris Flowable,Azoxystrobin,"Systemic fungicide effective against rusts and blights; apply preventatively."
+14,Fungicide,Tilt 250 EC,Propiconazole,"Triazole fungicide; effective against leaf spots and mildews; rotate modes of action."
+15,Top Dressing,Compost Supreme,Composted Chicken Manure,"Rich in nitrogen and organic matter; apply 2-3 tons/acre; incorporate to minimize odor."
+16,Top Dressing,LeafMulch Premium,Decomposed Leaf Litter,"Excellent for moisture retention and weed suppression; ensure composted to avoid nitrogen drawdown."
+17,Top Dressing,FarmStraw Cover,Straw Mulch,"Reduces erosion and conserves soil moisture; ensure mulch is seed-free before application."
+18,Top Dressing,WoodChip Blend,Aged Wood Chips,"Improves structure and microbial activity; avoid using fresh chips to prevent nitrogen immobilization."
+19,Fertilizer,SulfaGreen 20S,Ammonium Sulfate (21-0-0-24S),"Provides nitrogen and sulfur; acidifies soil slightly; ideal for alkaline soils."
+20,Herbicide,Valor SX,Flumioxazin,"Pre-emergent herbicide; excellent for broadleaf weed control. Avoid application on sandy soils."
+21,Pesticide,Coragen,Chlorantraniliprole,"Effective against chewing insects; long residual activity; compatible with IPM programs."
+22,Fungicide,Revus Top,Mandipropamid + Difenoconazole,"Dual-action fungicide for late blight and downy mildew; apply preventatively."
+23,Fertilizer,NitroMax Liquid,Liquid UAN (32%),"Fast-acting nitrogen fertilizer for foliar and soil application; mix with water before spraying."
+24,Herbicide,Basagran,Bentazon,"Post-emergent selective herbicide for broadleaf weeds; avoid during drought stress."
+25,Fungicide,Bravo Weather Stik,Chlorothalonil,"Protective fungicide with good rainfastness; do not exceed maximum seasonal rates."
+26,Pesticide,Warrior II,Lambda-cyhalothrin,"Broad-spectrum pyrethroid insecticide; apply when insects first appear."
+27,Fertilizer,ProSoil BioMix,Organic Compost Blend,"Enhances soil microbiology and nutrient retention; safe for all crop types."
+28,Fungicide,Headline SC,Pyraclostrobin,"Strobilurin fungicide with translaminar movement; use as part of a rotation program."
+29,Herbicide,Harness Extra,Acetochlor + Atrazine,"Pre-emergent herbicide for corn; apply before crop emergence."
+30,Pesticide,Transform WG,Sulfloxaflor,"Targets aphids and whiteflies; minimal impact on beneficial insects if applied correctly."
