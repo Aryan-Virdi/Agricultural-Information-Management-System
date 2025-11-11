@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS fieldcrop (
     fldc_begindate  DATE NOT NULL,
     fldc_enddate    DATE NOT NULL,
     fldc_yield      DECIMAL(6,2) NOT NULL,
+    fldc_yield_unit VARCHAR(16) NOT NULL,
     FOREIGN KEY (fldc_fieldkey) REFERENCES field(fld_fieldkey),
     FOREIGN KEY (fldc_cropkey) REFERENCES crop(c_cropkey)
 );
@@ -95,9 +96,11 @@ CREATE TABLE IF NOT EXISTS fieldmaintenance (
     fldm_fieldkey           DECIMAL(12,0) NOT NULL,
     fldm_maintenancekey     DECIMAL(4,0) NOT NULL,
     fldm_concentration      DECIMAL(5,2) NOT NULL,
+    fldm_concentration_unit VARCHAR(16) NOT NULL,
     fldm_amount             DECIMAL(5,2),      -- Amount may be unkown, but we should always know the concentration.
+    fldm_amount_unit        VARCHAR(16),
     fldm_begindate          DATE NOT NULL,
-    fldm_enddate            DATE NOT NULL,
+    fldm_enddate            DATE,
     FOREIGN KEY (fldm_fieldkey) REFERENCES field(fld_fieldkey),
     FOREIGN KEY (fldm_maintenancekey) REFERENCES maintenance(m_maintenancekey)
 );
