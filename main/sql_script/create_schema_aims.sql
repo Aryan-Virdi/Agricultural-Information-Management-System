@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS farmer (
     f_farmerkey     DECIMAL(9,0) PRIMARY KEY,
     f_fieldkey      DECIMAL(12,0) NOT NULL,
-    f_firstname     VARCHAR(25) NOT NULL,
+    f_name          VARCHAR(25) NOT NULL,
     f_surname       VARCHAR(25) NOT NULL
 );
 
