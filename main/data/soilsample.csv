@@ -1,1 +1,4 @@
 ss_samplekey,ss_fieldkey,ss_sampledate,ss_sand,ss_silt,ss_clay,ss_ph,ss_nitrogen_ppm,ss_phosphorus_ppm,ss_potassium_ppm,ss_organicmatter_pct,ss_cec,ss_lead_ppm,ss_mercury_ppm,ss_nickel_ppm,ss_copper_ppm,ss_chromium_ppm,ss_cadmium_ppm,ss_arsenic_ppm,ss_zinc_ppm,ss_comment
+1,1,2016-02-10,59.12,16.35,24.53,6.35,25.45,12.30,28.12,3.25,15.50,0.001,0.000,0.002,0.001,0.001,0.000,0.005,0.002,"Initial baseline soil sample prior to spring planting."
+2,1,2016-06-15,60.05,15.20,24.75,6.40,27.10,13.25,30.50,3.50,16.00,0.001,0.000,0.002,0.001,0.001,0.000,0.006,0.003,"Sample post-spring harvest and first fertilizer application."
+3,1,2016-10-05,60.15,14.80,25.05,6.38,26.50,12.90,29.75,3.45,15.75,0.001,0.000,0.002,0.001,0.001,0.000,0.004,0.002,"Pre-autumn crop planting sample."
