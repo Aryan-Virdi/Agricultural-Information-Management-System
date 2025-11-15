@@ -13,3 +13,6 @@ ss_samplekey,ss_fieldkey,ss_sampledate,ss_sand,ss_silt,ss_clay,ss_ph,ss_nitrogen
 12,1,2018-12-10,60.00,15.05,24.95,6.37,29.00,13.50,31.25,3.70,16.45,0.001,0.000,0.002,0.001,0.001,0.000,0.005,0.003,"Early winter soil sample post-autumn harvest 2018."
 13,1,2019-01-20,60.05,15.00,24.95,6.36,29.20,13.55,31.50,3.75,16.50,0.001,0.000,0.002,0.001,0.001,0.000,0.005,0.003,"Mid-winter soil sample; nitrogen slightly increased due to prior cover crop."
 14,1,2019-02-28,59.95,15.10,24.95,6.37,29.30,13.60,31.50,3.75,16.50,0.001,0.000,0.002,0.001,0.001,0.000,0.005,0.003,"Late winter sample; pre-spring planting baseline."
+15,1,2019-03-15,59.90,15.15,24.95,6.38,29.50,13.70,31.75,3.80,16.55,0.001,0.000,0.002,0.001,0.001,0.000,0.005,0.003,"Early spring soil sample; pre-planting almond bloom 2019."
+16,1,2019-04-20,59.95,15.10,24.95,6.39,29.60,13.75,31.80,3.80,16.60,0.001,0.000,0.002,0.001,0.001,0.000,0.005,0.003,"Mid-spring sample; early fertilizer applied."
+17,1,2019-05-25,60.00,15.05,24.95,6.38,29.70,13.80,31.90,3.85,16.65,0.001,0.000,0.002,0.001,0.001,0.000,0.005,0.003,"Late spring sample; pre-summer crop growth monitoring."
