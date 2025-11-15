@@ -6,7 +6,7 @@ c_cropkey,c_name,c_scientific,c_daystomature,c_seasonkey,c_ph,c_germ,c_water,c_n
 5,"Rice","Oryza sativa",150,2,6.00,95.00,700,"High water requirement; needs good P and K supply"
 6,"Table Grape","Vitis vinifera",120,2,6.50,85.00,450,"Moderate nutrient needs; balanced long-term feeding"
 7,"Walnut","Juglans regia",365,4,6.80,80.00,600,"Long-term orchard tree; steady N and K required"
-8,"Strawberry","Fragaria × ananassa",80,2,5.80,92.00,550,"High nutrient demand; strong P early, K late"
+8,"Strawberry","Fragaria x ananassa",80,2,5.80,92.00,550,"High nutrient demand; strong P early, K late"
 9,"Lettuce","Lactuca sativa",50,1,6.00,92.00,450,"Moderate N demand; low P and K"
 10,"Cotton","Gossypium hirsutum",160,2,6.30,88.00,650,"High K requirement during boll development"
 11,"Avocado","Persea americana",365,1,6.50,85.00,800,"High nutrient and water demand; sensitive to salinity"
