@@ -54,16 +54,17 @@ CREATE TABLE IF NOT EXISTS soilsample (
 );
 
 CREATE TABLE IF NOT EXISTS crop (
-    c_cropkey       DECIMAL(4,0) PRIMARY KEY,
-    c_name          VARCHAR(100) NOT NULL,
-    c_scientific    VARCHAR(128),
-    c_daystomature  DECIMAL(5,0) NOT NULL,
-    c_seasonkey     DECIMAL(2,0) NOT NULL,
-    c_ph            DECIMAL (4,2) NOT NULL,
-    c_germ          DECIMAL (5,2) NOT NULL,  -- Germination rate as a percentage.
-    c_water         DECIMAL(5,0),           -- Expected water usage of crop in mm/year
+    c_cropkey           DECIMAL(4,0) PRIMARY KEY,
+    c_name              VARCHAR(100) NOT NULL,
+    c_scientific        VARCHAR(128),
+    c_daystomature      DECIMAL(5,0) NOT NULL,
+    c_seasonkey         DECIMAL(2,0) NOT NULL,
+    c_preferredsoil     DECIMAL(3,0) NOT NULL
+    c_ph                DECIMAL (4,2) NOT NULL,
+    c_germ              DECIMAL (5,2) NOT NULL,     -- Germination rate as a percentage.
+    c_water             DECIMAL(5,0),               -- Expected water usage of crop in mm/year
     -- Omitting nutrient use numerics, at least for now.
-    c_nutrientuse   VARCHAR(125),
+    c_nutrientuse       VARCHAR(125),
     FOREIGN KEY (c_seasonkey) REFERENCES season(s_seasonkey)
 );
 
