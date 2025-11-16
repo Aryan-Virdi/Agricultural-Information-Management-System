@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS crop (
     c_scientific        VARCHAR(128),
     c_daystomature      DECIMAL(5,0) NOT NULL,
     c_seasonkey         DECIMAL(2,0) NOT NULL,
-    c_preferredsoil     DECIMAL(3,0) NOT NULL
+    c_preferredsoil     DECIMAL(3,0) NOT NULL,
     c_ph                DECIMAL (4,2) NOT NULL,
     c_germ              DECIMAL (5,2) NOT NULL,     -- Germination rate as a percentage.
     c_water             DECIMAL(5,0),               -- Expected water usage of crop in mm/year
