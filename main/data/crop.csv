@@ -1,4 +1,3 @@
-c_cropkey,c_name,c_scientific,c_daystomature,c_preferredseason,c_preferredsoil,c_ph,c_germ,c_water,c_nutrientuse
 1,"Almond","Prunus dulcis",365,4,4,6.50,85.00,715,"High nitrogen and potassium demand; perennial orchard crop"
 2,"Pistachio","Pistacia vera",365,4,3,7.00,80.00,650,"Deep-rooted; moderate N, high K and micronutrients"
 3,"Tomato","Solanum lycopersicum",90,2,3,6.20,90.00,600,"Heavy feeder requiring regular NPK applications"
