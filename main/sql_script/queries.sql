@@ -39,3 +39,22 @@ SELECT
 FROM variance v
 JOIN mean_components AS mc ON v.fieldkey = mc.fieldkey
 ORDER BY v.fieldkey;
+
+-- 2. Total crop yields for each farmer by crop, accounting for units.
+
+SELECT 
+    f.f_name AS farmer, 
+    c.c_name AS crop, 
+    SUM(fldc.fldc_yield) AS yield, 
+    fldc.fldc_yield_unit AS units
+FROM fieldcrop fldc
+JOIN field fld ON fldc.fldc_fieldkey = fld.fld_fieldkey
+JOIN crop c ON fldc.fldc_cropkey = c.c_cropkey
+JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+GROUP BY
+    f.f_farmerkey,
+    c.c_cropkey,
+    units
+ORDER BY
+    f.f_farmerkey ASC,
+    yield ASC;
