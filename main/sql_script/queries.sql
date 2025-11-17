@@ -58,3 +58,10 @@ GROUP BY
 ORDER BY
     f.f_farmerkey ASC,
     yield ASC;
+
+-- 3. Latest soil sample for a field. Let's say, field 2.
+
+SELECT * FROM soilsample
+WHERE ss_fieldkey = 2
+ORDER BY ss_sampledate DESC
+LIMIT 1;
