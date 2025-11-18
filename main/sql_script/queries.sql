@@ -134,3 +134,14 @@ LEFT JOIN last_maint lm ON fld.fld_fieldkey = lm.fldm_fieldkey
 WHERE lm.last_begindate IS NULL
    OR lm.last_begindate < date('now', '-3 years')
 ORDER BY lm.last_begindate NULLS FIRST;
+
+-- 7. Monthly average pH for a field over the last 12 months
+SELECT
+  strftime('%Y-%m', ss.ss_sampledate) AS year_month,
+  COUNT(*) AS samples,
+  ROUND(AVG(ss.ss_ph), 2) AS avg_ph
+FROM soilsample ss
+WHERE ss.ss_fieldkey = :fieldkey -- Update with the appropiate FieldKey, applicable only for a specific field
+  AND ss.ss_sampledate >= date('now', '-12 months')
+GROUP BY year_month
+ORDER BY year_month;
