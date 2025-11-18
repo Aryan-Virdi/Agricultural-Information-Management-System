@@ -248,3 +248,78 @@ total_yields_by_farmer_by_crop AS (
 )
 SELECT total.farmer, total.crop, MAX(total.yield), total.units FROM total_yields_by_farmer_by_crop total
 GROUP BY total.crop;
+
+-- 14. Farmers ranked by average yield by field
+SELECT
+  f.f_farmerkey,
+  TRIM(f.f_name || ' ' || f.f_surname) AS farmer_name,
+  ROUND(AVG(fc.fldc_yield),2) AS avg_yield_per_active_crop,
+  COUNT(DISTINCT fc.fldc_fieldkey) AS active_fields_count
+FROM farmer f
+JOIN field fld ON f.f_farmerkey = fld.fld_farmerkey
+JOIN fieldcrop fc ON fld.fld_fieldkey = fc.fldc_fieldkey
+WHERE date('now') BETWEEN fc.fldc_begindate AND fc.fldc_enddate
+GROUP BY f.f_farmerkey
+ORDER BY avg_yield_per_active_crop DESC;
+
+-- 15. Crops whose preferred pH falls outside the field’s average pH
+WITH field_avg AS (
+  SELECT fld.fld_fieldkey, AVG(ss.ss_ph) AS avg_ph
+  FROM field fld
+  JOIN soilsample ss ON fld.fld_fieldkey = ss.ss_fieldkey
+  GROUP BY fld.fld_fieldkey
+)
+SELECT
+  fld.fld_fieldkey,
+  TRIM(f.f_name || ' ' || f.f_surname) AS farmer_name,
+  c.c_cropkey,
+  c.c_name,
+  ROUND(fa.avg_ph,2) AS field_avg_ph,
+  c.c_ph AS crop_pref_ph,
+  ABS(fa.avg_ph - c.c_ph) AS ph_diff
+FROM field fld
+JOIN fieldcrop fc ON fld.fld_fieldkey = fc.fldc_fieldkey
+JOIN crop c ON fc.fldc_cropkey = c.c_cropkey
+JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+JOIN field_avg fa ON fld.fld_fieldkey = fa.fld_fieldkey
+WHERE ABS(fa.avg_ph - c.c_ph) > :tolerance -- Set the avg tolerance based on crop
+ORDER BY ph_diff DESC;
+
+-- 16. Total yield per season
+SELECT
+  s.s_seasonkey,
+  s.s_name,
+  ROUND(SUM(fc.fldc_yield),2) AS total_yield,
+  COUNT(fc.fldc_fieldkey) AS plantings_count
+FROM season s
+LEFT JOIN fieldcrop fc ON fc.fldc_enddate BETWEEN s.s_startdate AND s.s_enddate
+GROUP BY s.s_seasonkey
+ORDER BY total_yield DESC;
+
+-- 17. Crop rotation fields where crop this season ≠ last season
+WITH completed_harvests AS (
+  SELECT
+    fc.fldc_fieldkey,
+    fc.fldc_cropkey,
+    fc.fldc_enddate,
+    s.s_seasonkey,
+    ROW_NUMBER() OVER (PARTITION BY fc.fldc_fieldkey ORDER BY fc.fldc_enddate DESC) AS rn
+  FROM fieldcrop fc
+  JOIN season s ON fc.fldc_enddate BETWEEN s.s_startdate AND s.s_enddate
+  WHERE fc.fldc_enddate < date('now')
+)
+SELECT
+  a.fldc_fieldkey,
+  a.c_cropkey AS latest_cropkey,
+  b.c_cropkey AS previous_cropkey,
+  c1.c_name AS latest_crop,
+  c2.c_name AS previous_crop
+FROM (
+  SELECT fldc_fieldkey, fldc_cropkey AS c_cropkey FROM completed_harvests WHERE rn = 1
+) a
+JOIN (
+  SELECT fldc_fieldkey, fldc_cropkey AS c_cropkey FROM completed_harvests WHERE rn = 2
+) b ON a.fldc_fieldkey = b.fldc_fieldkey
+JOIN crop c1 ON a.c_cropkey = c1.c_cropkey
+JOIN crop c2 ON b.c_cropkey = c2.c_cropkey
+WHERE a.c_cropkey <> b.c_cropkey;
