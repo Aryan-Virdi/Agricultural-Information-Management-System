@@ -193,6 +193,7 @@ WHERE date('now') BETWEEN fldc.fldc_begindate AND fldc.fldc_enddate
 ORDER BY fld.fld_fieldkey;
 
 -- 10. Average N, P, K by soil texture
+-- modify for std deviation
 SELECT
   st.st_soil_texture,
   COUNT(ss.ss_samplekey) AS sample_count,
@@ -205,3 +206,24 @@ JOIN soiltype st ON fld.fld_soilkey = st.st_soilkey
 GROUP BY st.st_soil_texture
 HAVING COUNT(ss.ss_samplekey) >= 5
 ORDER BY avg_nitrogen_ppm DESC;
+
+-- 11. List all crops and how many fields are actively growing them
+SELECT
+    c.c_cropkey,
+    c.c_name,
+    COUNT(fldc.fldc_fieldkey) AS active_fields
+FROM crop c
+LEFT JOIN fieldcrop fldc 
+    ON c.c_cropkey = fldc.fldc_cropkey
+    AND date('now') BETWEEN fldc.fldc_begindate AND fldc.fldc_enddate
+GROUP BY c.c_cropkey;
+
+-- 12. Find the most commonly grown crop
+SELECT
+    c.c_name,
+    COUNT(*) AS total_planted
+FROM crop c
+JOIN fieldcrop fc ON c.c_cropkey = fc.fldc_cropkey
+GROUP BY c.c_cropkey
+ORDER BY total_planted DESC
+LIMIT 1;
