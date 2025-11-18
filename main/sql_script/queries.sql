@@ -97,7 +97,6 @@ WHERE
 ORDER BY ss_sampledate DESC;
 
 -- 5. Samples with contaminants exceeding regulatory thresholds
--- Params: :lead_threshold, :cadmium_threshold, :arsenic_threshold, etc.
 SELECT
   ss.ss_samplekey,
   ss.ss_sampledate,
@@ -175,3 +174,34 @@ SELECT
 FROM maint_by_year m
 LEFT JOIN yield_by_year y ON m.fieldkey = y.fieldkey AND m.year = y.year
 ORDER BY amount_per_yield_unit DESC NULLS LAST;
+
+-- 9. Active plantings where field soil ≠ crop preferred soil
+SELECT
+  fld.fld_fieldkey,
+  fld.fld_farmerkey,
+  f.f_name || ' ' || f.f_surname AS farmer_name,
+  c.c_cropkey,
+  c.c_name AS crop_name,
+  fld.fld_soilkey AS field_soilkey,
+  c.c_preferredsoil AS crop_preferred_soil
+FROM field fld
+JOIN fieldcrop fldc ON fld.fld_fieldkey = fldc.fldc_fieldkey
+JOIN crop c ON fldc.fldc_cropkey = c.c_cropkey
+JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+WHERE date('now') BETWEEN fldc.fldc_begindate AND fldc.fldc_enddate
+  AND (fld.fld_soilkey IS NULL OR fld.fld_soilkey <> c.c_preferredsoil)
+ORDER BY fld.fld_fieldkey;
+
+-- 10. Average N, P, K by soil texture
+SELECT
+  st.st_soil_texture,
+  COUNT(ss.ss_samplekey) AS sample_count,
+  ROUND(AVG(ss.ss_nitrogen_ppm),2)   AS avg_nitrogen_ppm,
+  ROUND(AVG(ss.ss_phosphorus_ppm),2) AS avg_phosphorus_ppm,
+  ROUND(AVG(ss.ss_potassium_ppm),2)  AS avg_potassium_ppm
+FROM soilsample ss
+JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
+JOIN soiltype st ON fld.fld_soilkey = st.st_soilkey
+GROUP BY st.st_soil_texture
+HAVING COUNT(ss.ss_samplekey) >= 5
+ORDER BY avg_nitrogen_ppm DESC;
