@@ -323,3 +323,67 @@ JOIN (
 JOIN crop c1 ON a.c_cropkey = c1.c_cropkey
 JOIN crop c2 ON b.c_cropkey = c2.c_cropkey
 WHERE a.c_cropkey <> b.c_cropkey;
+
+-- 18. Fieldcrops that fall within a season
+-- Returns all fieldcrop records whose begindate→enddate lies within the assigned seasonal date
+SELECT
+  fc.*,
+  f.f_farmerkey,
+  TRIM(f.f_name || ' ' || f.f_surname) AS farmer_name,
+  c.c_name AS crop_name
+FROM fieldcrop fc
+JOIN field fld ON fc.fldc_fieldkey = fld.fld_fieldkey
+JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+JOIN crop c ON fc.fldc_cropkey = c.c_cropkey
+JOIN season s ON s.s_seasonkey = :seasonkey -- Update this based on the desired season
+WHERE fc.fldc_begindate >= s.s_startdate
+  AND fc.fldc_enddate <= s.s_enddate
+ORDER BY fc.fldc_begindate;
+
+-- 19. Which crops perform better in which season: average yield per crop per season
+SELECT
+  c.c_cropkey,
+  c.c_name,
+  s.s_seasonkey,
+  s.s_name,
+  ROUND(AVG(fc.fldc_yield),2) AS avg_yield,
+  COUNT(fc.fldc_fieldkey) AS observations
+FROM fieldcrop fc
+JOIN crop c ON fc.fldc_cropkey = c.c_cropkey
+JOIN season s ON fc.fldc_enddate BETWEEN s.s_startdate AND s.s_enddate
+GROUP BY c.c_cropkey, s.s_seasonkey
+HAVING observations >= 1
+ORDER BY c.c_cropkey, avg_yield DESC;
+
+-- 20. Records nutrients and organic matter per field per season
+WITH sample_season AS (
+  SELECT
+    fld.fld_fieldkey,
+    s.s_seasonkey,
+    s.s_name AS season_name,
+    ss.ss_samplekey,
+    ss.ss_sampledate,
+    ss.ss_nitrogen_ppm,
+    ss.ss_phosphorus_ppm,
+    ss.ss_potassium_ppm,
+    ss.ss_organicmatter_pct
+  FROM soilsample ss
+  JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
+  JOIN season s ON ss.ss_sampledate BETWEEN s.s_startdate AND s.s_enddate
+)
+SELECT
+  ss.fld_fieldkey                                  AS field_key,
+  ss.s_seasonkey                                   AS season_key,
+  ss.season_name                                   AS season_name,
+  COUNT(ss.ss_samplekey)                           AS sample_count,
+  ROUND(AVG(ss.ss_nitrogen_ppm), 2)                AS avg_nitrogen_ppm,
+  ROUND(MIN(ss.ss_nitrogen_ppm), 2)                AS min_nitrogen_ppm,
+  ROUND(MAX(ss.ss_nitrogen_ppm), 2)                AS max_nitrogen_ppm,
+  ROUND(AVG(ss.ss_phosphorus_ppm), 2)              AS avg_phosphorus_ppm,
+  ROUND(AVG(ss.ss_potassium_ppm), 2)               AS avg_potassium_ppm,
+  ROUND(AVG(ss.ss_organicmatter_pct), 2)           AS avg_organicmatter_pct,
+  MIN(ss.ss_sampledate)                            AS first_sample_date,
+  MAX(ss.ss_sampledate)                            AS last_sample_date
+FROM sample_season ss
+GROUP BY ss.fld_fieldkey, ss.s_seasonkey, ss.season_name
+ORDER BY ss.fld_fieldkey, ss.s_seasonkey;
