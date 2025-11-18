@@ -115,9 +115,9 @@ FROM soilsample ss
 JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
 JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
 WHERE
-  (ss.ss_lead_ppm   IS NOT NULL AND ss.ss_lead_ppm   > :lead_threshold)
-  OR (ss.ss_cadmium_ppm IS NOT NULL AND ss.ss_cadmium_ppm > :cadmium_threshold)
-  OR (ss.ss_arsenic_ppm IS NOT NULL AND ss.ss_arsenic_ppm > :arsenic_threshold)
+  (ss.ss_lead_ppm   IS NOT NULL AND ss.ss_lead_ppm > 200)
+  OR (ss.ss_cadmium_ppm IS NOT NULL AND ss.ss_cadmium_ppm > 0.48)
+  OR (ss.ss_arsenic_ppm IS NOT NULL AND ss.ss_arsenic_ppm > 10)
 ORDER BY ss.ss_sampledate DESC;
 
 
