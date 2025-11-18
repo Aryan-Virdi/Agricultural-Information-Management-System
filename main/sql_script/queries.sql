@@ -66,9 +66,7 @@ WHERE ss_fieldkey = 2
 ORDER BY ss_sampledate DESC
 LIMIT 1;
 
--- 4. Display James Holloway's field's change in heavy metals presence in the last year.
---    In this case, "the last year" means the last year's worth of samples measured from
---    the most recent sample.
+-- 4. Display James Holloway's field's change in heavy metals presence in the last year's worth of his samples.
 
 WITH 
 latest_sample_for_farmer AS (
@@ -97,6 +95,3 @@ WHERE
         f.f_name = 'James' AND f.f_surname = 'Holloway'
     AND ss_sampledate IN (SELECT dates FROM most_recent_year)
 ORDER BY ss_sampledate DESC;
-
--- SELECT ss_sampledate FROM soilsample
--- WHERE ss_sampledate >= DATE((SELECT MAX(ss_sampledate) FROM soilsample), '-1 year')
