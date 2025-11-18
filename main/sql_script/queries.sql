@@ -96,7 +96,6 @@ WHERE
     AND ss_sampledate IN (SELECT dates FROM most_recent_year)
 ORDER BY ss_sampledate DESC;
 
-<<<<<<< HEAD
 -- 5. Which farmers produced the most of each crop. Display kg/ha and bushels/ha separately.
 
 WITH
@@ -117,7 +116,6 @@ total_yields_by_farmer_by_crop AS (
 )
 SELECT total.farmer, total.crop, MAX(total.yield), total.units FROM total_yields_by_farmer_by_crop total
 GROUP BY total.crop;
-=======
 -- 5. Samples with contaminants exceeding regulatory thresholds
 SELECT
   ss.ss_samplekey,
@@ -249,4 +247,3 @@ JOIN fieldcrop fc ON c.c_cropkey = fc.fldc_cropkey
 GROUP BY c.c_cropkey
 ORDER BY total_planted DESC
 LIMIT 1;
->>>>>>> d81fbca23e68797135b8f1c1960d28421ccec544
