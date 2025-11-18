@@ -95,3 +95,42 @@ WHERE
         f.f_name = 'James' AND f.f_surname = 'Holloway'
     AND ss_sampledate IN (SELECT dates FROM most_recent_year)
 ORDER BY ss_sampledate DESC;
+
+-- 5. Samples with contaminants exceeding regulatory thresholds
+SELECT
+  ss.ss_samplekey,
+  ss.ss_sampledate,
+  f.f_farmerkey,
+  f.f_name AS farmer_name,
+  fld.fld_fieldkey,
+  ct.ct_name AS contaminant,
+  ssc.ssc_concentration,
+  ct.ct_reg_threshold,
+  ct.ct_threshold_unit
+FROM soilsample ss
+JOIN soilsample_contaminant ssc ON ss.ss_samplekey = ssc.ssc_samplekey
+JOIN contaminant_type ct ON ssc.ssc_contaminantkey = ct.ct_contaminantkey
+JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
+JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+WHERE ct.ct_reg_threshold IS NOT NULL
+  AND ssc.ssc_concentration > ct.ct_reg_threshold
+ORDER BY ss.ss_sampledate DESC, ssc.ssc_concentration DESC;
+
+-- 6. Fields with no maintenance in the last N years
+WITH last_maint AS (
+  SELECT
+    fldm_fieldkey,
+    MAX(fldm_begindate) AS last_begindate
+  FROM fieldmaintenance
+  GROUP BY fldm_fieldkey
+)
+SELECT
+  fld.fld_fieldkey,
+  fld.fld_farmerkey,
+  fld.fld_size,
+  lm.last_begindate
+FROM field fld
+LEFT JOIN last_maint lm ON fld.fld_fieldkey = lm.fldm_fieldkey
+WHERE lm.last_begindate IS NULL
+   OR lm.last_begindate < date('now', '-3 years')
+ORDER BY lm.last_begindate NULLS FIRST;
