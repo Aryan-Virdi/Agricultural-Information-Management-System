@@ -95,3 +95,24 @@ WHERE
         f.f_name = 'James' AND f.f_surname = 'Holloway'
     AND ss_sampledate IN (SELECT dates FROM most_recent_year)
 ORDER BY ss_sampledate DESC;
+
+-- 5. Which farmers produced the most of each crop. Display kg/ha and bushels/ha separately.
+
+WITH
+total_yields_by_farmer_by_crop AS (
+    SELECT 
+        f.f_name || ' ' || f.f_surname AS farmer, 
+        c.c_name AS crop, 
+        SUM(fldc.fldc_yield) AS yield, 
+        fldc.fldc_yield_unit AS units
+    FROM fieldcrop fldc
+    JOIN field fld ON fldc.fldc_fieldkey = fld.fld_fieldkey
+    JOIN crop c ON fldc.fldc_cropkey = c.c_cropkey
+    JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+    GROUP BY
+        f.f_farmerkey,
+        c.c_cropkey,
+        units
+)
+SELECT total.farmer, total.crop, MAX(total.yield), total.units FROM total_yields_by_farmer_by_crop total
+GROUP BY total.crop;
