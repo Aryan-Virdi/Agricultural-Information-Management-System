@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS fieldmaintenance (
     fldm_concentration DECIMAL(5,2) NOT NULL, 
     fldm_concentration_unit VARCHAR(16) NOT NULL, 
     fldm_amount DECIMAL(5,2), 
-    -- Amount may be unkown, but we should always know the concentration. 
+    -- Amount may be unknown, but we should always know the concentration. 
     fldm_amount_unit VARCHAR(16), 
     fldm_begindate DATE NOT NULL, 
     fldm_enddate DATE, 
