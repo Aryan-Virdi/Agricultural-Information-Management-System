@@ -97,24 +97,25 @@ WHERE
 ORDER BY ss_sampledate DESC;
 
 -- 5. Samples with contaminants exceeding regulatory thresholds
+-- Params: :lead_threshold, :cadmium_threshold, :arsenic_threshold, etc.
 SELECT
   ss.ss_samplekey,
   ss.ss_sampledate,
-  f.f_farmerkey,
-  f.f_name AS farmer_name,
   fld.fld_fieldkey,
-  ct.ct_name AS contaminant,
-  ssc.ssc_concentration,
-  ct.ct_reg_threshold,
-  ct.ct_threshold_unit
+  f.f_farmerkey,
+  f.f_name || ' ' || f.f_surname AS farmer_name,
+  ss.ss_lead_ppm,
+  ss.ss_cadmium_ppm,
+  ss.ss_arsenic_ppm
 FROM soilsample ss
-JOIN soilsample_contaminant ssc ON ss.ss_samplekey = ssc.ssc_samplekey
-JOIN contaminant_type ct ON ssc.ssc_contaminantkey = ct.ct_contaminantkey
 JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
 JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
-WHERE ct.ct_reg_threshold IS NOT NULL
-  AND ssc.ssc_concentration > ct.ct_reg_threshold
-ORDER BY ss.ss_sampledate DESC, ssc.ssc_concentration DESC;
+WHERE
+  (ss.ss_lead_ppm   IS NOT NULL AND ss.ss_lead_ppm   > :lead_threshold)
+  OR (ss.ss_cadmium_ppm IS NOT NULL AND ss.ss_cadmium_ppm > :cadmium_threshold)
+  OR (ss.ss_arsenic_ppm IS NOT NULL AND ss.ss_arsenic_ppm > :arsenic_threshold)
+ORDER BY ss.ss_sampledate DESC;
+
 
 -- 6. Fields with no maintenance in the last N years
 WITH last_maint AS (
@@ -145,3 +146,32 @@ WHERE ss.ss_fieldkey = :fieldkey -- Update with the appropiate FieldKey, applica
   AND ss.ss_sampledate >= date('now', '-12 months')
 GROUP BY year_month
 ORDER BY year_month;
+
+-- 8. Yearly maintenance cost vs total yield per field
+WITH maint_by_year AS (
+  SELECT
+    fldm_fieldkey AS fieldkey,
+    strftime('%Y', fldm_begindate) AS year,
+    SUM(COALESCE(fldm_amount,0)) AS total_maint_amount
+  FROM fieldmaintenance
+  GROUP BY fldm_fieldkey, year
+),
+yield_by_year AS (
+  SELECT
+    fldc_fieldkey AS fieldkey,
+    strftime('%Y', fldc_enddate) AS year,
+    SUM(COALESCE(fldc_yield,0)) AS total_yield
+  FROM fieldcrop
+  GROUP BY fldc_fieldkey, year
+)
+SELECT
+  m.fieldkey,
+  m.year,
+  m.total_maint_amount,
+  COALESCE(y.total_yield,0) AS total_yield,
+  CASE WHEN COALESCE(y.total_yield,0) = 0 THEN NULL
+       ELSE ROUND(m.total_maint_amount / y.total_yield, 6)
+  END AS amount_per_yield_unit
+FROM maint_by_year m
+LEFT JOIN yield_by_year y ON m.fieldkey = y.fieldkey AND m.year = y.year
+ORDER BY amount_per_yield_unit DESC NULLS LAST;
