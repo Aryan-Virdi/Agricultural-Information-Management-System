@@ -65,3 +65,38 @@ SELECT * FROM soilsample
 WHERE ss_fieldkey = 2
 ORDER BY ss_sampledate DESC
 LIMIT 1;
+
+-- 4. Display James Holloway's field's change in heavy metals presence in the last year.
+--    In this case, "the last year" means the last year's worth of samples measured from
+--    the most recent sample.
+
+WITH 
+latest_sample_for_farmer AS (
+    SELECT MAX(ss.ss_sampledate) AS latest_sample FROM soilsample ss
+    JOIN farmer f ON ss.ss_fieldkey = f.f_fieldkey
+    WHERE f.f_name = 'James' AND f.f_surname = 'Holloway'
+), 
+most_recent_year AS (
+        SELECT ss_sampledate AS dates FROM soilsample
+        WHERE ss_sampledate >= DATE((SELECT * FROM latest_sample_for_farmer), '-1 year')
+    )
+SELECT 
+    f.f_name || ' ' || f.f_surname AS farmer_name, 
+    ss_sampledate AS date,
+    ss_lead_ppm AS lead, 
+    ss_mercury_ppm AS mercury, 
+    ss_nickel_ppm AS nickel, 
+    ss_copper_ppm AS copper, 
+    ss_chromium_ppm AS chromium, 
+    ss_cadmium_ppm AS cadmium, 
+    ss_arsenic_ppm AS arsenic, 
+    ss_zinc_ppm AS zinc
+FROM soilsample
+JOIN farmer f ON ss_fieldkey = f.f_fieldkey
+WHERE
+        f.f_name = 'James' AND f.f_surname = 'Holloway'
+    AND ss_sampledate IN (SELECT dates FROM most_recent_year)
+ORDER BY ss_sampledate DESC;
+
+-- SELECT ss_sampledate FROM soilsample
+-- WHERE ss_sampledate >= DATE((SELECT MAX(ss_sampledate) FROM soilsample), '-1 year')
