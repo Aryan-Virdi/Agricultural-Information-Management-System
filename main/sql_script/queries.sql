@@ -282,15 +282,23 @@ SELECT
   TRIM(f.f_name || ' ' || f.f_surname) AS farmer_name,
   c.c_cropkey,
   c.c_name,
-  ROUND(fa.avg_ph,2) AS field_avg_ph,
+  ROUND(fa.avg_ph, 2) AS field_avg_ph,
   c.c_ph AS crop_pref_ph,
-  ABS(fa.avg_ph - c.c_ph) AS ph_diff
+  ROUND(ABS(fa.avg_ph - c.c_ph), 3) AS ph_diff,
+  COUNT(*) AS occurrences
 FROM field fld
 JOIN fieldcrop fc ON fld.fld_fieldkey = fc.fldc_fieldkey
 JOIN crop c ON fc.fldc_cropkey = c.c_cropkey
 JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
 JOIN field_avg fa ON fld.fld_fieldkey = fa.fld_fieldkey
-WHERE ABS(fa.avg_ph - c.c_ph) > :tolerance -- Set the avg tolerance based on crop
+WHERE ABS(fa.avg_ph - c.c_ph) < 6
+GROUP BY
+  fld.fld_fieldkey,
+  farmer_name,
+  c.c_cropkey,
+  c.c_name,
+  field_avg_ph,
+  crop_pref_ph
 ORDER BY ph_diff DESC;
 
 -- 16. Total yield per season
