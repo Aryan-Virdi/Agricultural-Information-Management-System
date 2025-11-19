@@ -351,7 +351,7 @@ FROM fieldcrop fc
 JOIN field fld ON fc.fldc_fieldkey = fld.fld_fieldkey
 JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
 JOIN crop c ON fc.fldc_cropkey = c.c_cropkey
-JOIN season s ON s.s_seasonkey = :seasonkey -- Update this based on the desired season
+JOIN season s ON s.s_seasonkey = c.c_preferredseason
 WHERE fc.fldc_begindate >= s.s_startdate
   AND fc.fldc_enddate <= s.s_enddate
 ORDER BY fc.fldc_begindate;
