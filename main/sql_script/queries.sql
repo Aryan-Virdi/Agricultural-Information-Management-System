@@ -263,11 +263,10 @@ SELECT
   f.f_farmerkey,
   TRIM(f.f_name || ' ' || f.f_surname) AS farmer_name,
   ROUND(AVG(fc.fldc_yield),2) AS avg_yield_per_active_crop,
-  COUNT(DISTINCT fc.fldc_fieldkey) AS active_fields_count
+  COUNT(fc.fldc_fieldkey) AS active_fields_count
 FROM farmer f
 JOIN field fld ON f.f_farmerkey = fld.fld_farmerkey
 JOIN fieldcrop fc ON fld.fld_fieldkey = fc.fldc_fieldkey
-WHERE date('now') BETWEEN fc.fldc_begindate AND fc.fldc_enddate
 GROUP BY f.f_farmerkey
 ORDER BY avg_yield_per_active_crop DESC;
 
