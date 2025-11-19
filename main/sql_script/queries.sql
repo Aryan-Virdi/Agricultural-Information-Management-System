@@ -215,7 +215,7 @@ GROUP BY st.st_soil_texture
 HAVING COUNT(ss.ss_samplekey) >= 5
 ORDER BY avg_nitrogen_ppm DESC;
 
--- 11. List all crops and how many fields are actively growing them
+-- 11. List all crops and how many croppings are during a given date.
 SELECT
     c.c_cropkey,
     c.c_name,
@@ -223,8 +223,9 @@ SELECT
 FROM crop c
 LEFT JOIN fieldcrop fldc 
     ON c.c_cropkey = fldc.fldc_cropkey
-    AND date('now') BETWEEN fldc.fldc_begindate AND fldc.fldc_enddate
-GROUP BY c.c_cropkey;
+    AND date('2019-03-15') BETWEEN fldc.fldc_begindate AND fldc.fldc_enddate
+GROUP BY c.c_cropkey
+HAVING (COUNT(DISTINCT fldc.fldc_fieldkey) > 0);
 
 -- 12. Find the most commonly grown crop
 SELECT
