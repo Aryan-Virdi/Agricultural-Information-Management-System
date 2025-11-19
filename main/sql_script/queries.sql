@@ -189,14 +189,15 @@ SELECT
   f.f_name || ' ' || f.f_surname AS farmer_name,
   c.c_cropkey,
   c.c_name AS crop_name,
-  fld.fld_soilkey AS field_soilkey,
-  c.c_preferredsoil AS crop_preferred_soil
+  fld.fld_soilkey || ')  ' || st_field.st_soil_texture AS field_soil,
+  c.c_preferredsoil || ')  ' || st_crop.st_soil_texture AS crop_preferred_soil
 FROM field fld
 JOIN fieldcrop fldc ON fld.fld_fieldkey = fldc.fldc_fieldkey
 JOIN crop c ON fldc.fldc_cropkey = c.c_cropkey
 JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
-WHERE date('now') BETWEEN fldc.fldc_begindate AND fldc.fldc_enddate
-  AND (fld.fld_soilkey IS NULL OR fld.fld_soilkey <> c.c_preferredsoil)
+JOIN soiltype st_field ON fld.fld_soilkey = st_field.st_soilkey
+JOIN soiltype st_crop ON c.c_preferredsoil = st_crop.st_soilkey
+WHERE (fld.fld_soilkey IS NULL OR fld.fld_soilkey <> c.c_preferredsoil)
 ORDER BY fld.fld_fieldkey;
 
 -- 10. Average N, P, K by soil texture
