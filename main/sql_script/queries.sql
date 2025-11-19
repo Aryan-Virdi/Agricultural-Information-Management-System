@@ -132,12 +132,11 @@ WITH last_maint AS (
 SELECT
   fld.fld_fieldkey,
   fld.fld_farmerkey,
-  fld.fld_size,
   lm.last_begindate
 FROM field fld
 LEFT JOIN last_maint lm ON fld.fld_fieldkey = lm.fldm_fieldkey
 WHERE lm.last_begindate IS NULL
-   OR lm.last_begindate < date('now', '-3 years')
+   OR lm.last_begindate < date((SELECT MAX(fldm_begindate) AS latest_begin FROM fieldmaintenance), '-3 years')
 ORDER BY lm.last_begindate NULLS FIRST;
 
 -- 7. Monthly average pH for a field over the last 12 months
