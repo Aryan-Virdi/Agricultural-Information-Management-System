@@ -145,8 +145,8 @@ SELECT
   COUNT(*) AS samples,
   ROUND(AVG(ss.ss_ph), 2) AS avg_ph
 FROM soilsample ss
-WHERE ss.ss_fieldkey = :fieldkey -- Update with the appropiate FieldKey, applicable only for a specific field
-  AND ss.ss_sampledate >= date('now', '-12 months')
+WHERE ss.ss_fieldkey = 1 -- Update with the appropiate FieldKey, applicable only for a specific field
+  AND ss.ss_sampledate >= date((SELECT MAX(ss.ss_sampledate) AS latest_sample FROM soilsample ss), '-12 months')
 GROUP BY year_month
 ORDER BY year_month;
 
