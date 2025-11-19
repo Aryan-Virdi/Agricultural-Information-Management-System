@@ -177,7 +177,10 @@ SELECT
   END AS amount_per_yield_unit
 FROM maint_by_year m
 LEFT JOIN yield_by_year y ON m.fieldkey = y.fieldkey AND m.year = y.year
-ORDER BY amount_per_yield_unit DESC NULLS LAST;
+ORDER BY 
+  m.fieldkey ASC,
+  m.year ASC,
+  amount_per_yield_unit DESC NULLS LAST;
 
 -- 9. Active plantings where field soil ≠ crop preferred soil
 SELECT
