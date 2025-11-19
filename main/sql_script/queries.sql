@@ -230,7 +230,7 @@ HAVING (COUNT(DISTINCT fldc.fldc_fieldkey) > 0);
 -- 12. Find the most commonly grown crop
 SELECT
     c.c_name,
-    COUNT(*) AS total_planted   -- Consider COUNT(DISTINCT fldc_begindate) AS total_planted
+    COUNT(DISTINCT fldc_begindate) AS total_planted   -- Consider COUNT(DISTINCT fldc_begindate) AS total_planted
 FROM crop c
 JOIN fieldcrop fc ON c.c_cropkey = fc.fldc_cropkey
 GROUP BY c.c_cropkey
