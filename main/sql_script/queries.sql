@@ -8,6 +8,9 @@
 .print "QUERY 1: Soil Component Statistics by Field"
 .print "==========================================="
 
+-- Important for analyzing the distribution of the dataset for
+-- each field. These statistics inform pattern and variability analyses.
+
 WITH 
 mean_components AS (
   SELECT 
@@ -59,6 +62,9 @@ ORDER BY v.fieldkey;
 .print "QUERY 2: Total Crop Yields by Farmer/Crop"
 .print "==========================================="
 
+-- Informs assessments of food security, agricultural productivity,
+-- and economic health.
+
 SELECT 
     f.f_name AS farmer, 
     c.c_name AS crop, 
@@ -82,6 +88,10 @@ ORDER BY
 .print "QUERY 3: Latest Soil Sample for Field 2"
 .print "==========================================="
 
+-- The farmer (or related employee) may only be concerned with the most recent sample
+-- if they specifically ordered it, especially after a potential contamination or
+-- overapplication event.
+
 SELECT * FROM soilsample
 WHERE ss_fieldkey = 2
 ORDER BY ss_sampledate DESC
@@ -92,6 +102,11 @@ LIMIT 1;
 .print "==========================================="
 .print "QUERY 4: James Holloway's Metals (Last Year)"
 .print "==========================================="
+
+-- We may be concerned about metal concentration if we are analyzing the flow of
+-- contamination risks, such as fertilizer, spills, or leeching.
+-- Spatially, we may also be worried about water contamination from leeching
+-- metals.
 
 WITH 
 latest_sample_for_farmer AS (
@@ -127,6 +142,13 @@ ORDER BY ss_sampledate DESC;
 .print "QUERY 5: Samples Exceeding Thresholds"
 .print "==========================================="
 
+-- Find moments in time where metal concentrations were detected
+-- as too large for safe agricultural output.
+-- As a historical record it is good for spatial and socioeconomic
+-- patterns, and as a current view of the soil it is important
+-- for a farmer/manager to immediately address the issue.
+-- Below query looks at three metals, specifically.
+
 SELECT
   ss.ss_samplekey,
   ss.ss_sampledate,
@@ -150,6 +172,11 @@ ORDER BY ss.ss_sampledate DESC;
 .print "==========================================="
 .print "QUERY 6: Fields with No Recent Maintenance"
 .print "==========================================="
+
+-- Check if a field has NOT used particular inputs (besides water)
+-- This information may be used to analyze [relatively] naturally 
+-- productive fields, or as we have noticed, analyze which fields
+-- who have NOT reported any of their data.
 
 WITH last_maint AS (
   SELECT
@@ -179,7 +206,9 @@ ORDER BY (lm.last_begindate IS NOT NULL), lm.last_begindate;
 .print "QUERY 7: Monthly Avg pH (Last 12 Months)"
 .print "==========================================="
 
--- Note: Add more soil sample data for one of the returned months.
+-- Another statistic, but in a smaller timescale for measuring
+-- local, short-term changes.
+
 SELECT
   strftime('%Y-%m', ss.ss_sampledate) AS year_month,
   COUNT(*) AS samples,
@@ -187,7 +216,9 @@ SELECT
 FROM soilsample ss
 WHERE ss.ss_fieldkey = 2 
   AND ss.ss_sampledate >= date((SELECT MAX(ss.ss_sampledate) AS latest_sample FROM soilsample ss), '-12 months') 
-GROUP BY year_month
+GROUP BY 
+    year_month--,
+    -- ss_fieldkey
 ORDER BY year_month;
 
 
@@ -195,6 +226,10 @@ ORDER BY year_month;
 .print "==========================================="
 .print "QUERY 8: Maint. Cost vs Total Yield"
 .print "==========================================="
+
+-- Analyze maintenance inputs vs yield patterns.
+-- Useful for analyzing economic constraints and
+-- potential misuse of inputs.
 
 WITH maint_by_year AS (
   SELECT
@@ -233,6 +268,11 @@ ORDER BY
 .print "QUERY 9: Soil Type Mismatch"
 .print "==========================================="
 
+-- See which pairs of crops and soils mismatch. This is not
+-- necessarily a bad thing due to variance in crop tolerance,
+-- but may help further inform pattern matching of crop 
+-- performance and their conditions.
+
 SELECT
   fld.fld_fieldkey,
   fld.fld_farmerkey,
@@ -265,12 +305,16 @@ ORDER BY fld.fld_fieldkey;
 .print "QUERY 10: Avg NPK by Soil Texture"
 .print "==========================================="
 
+-- Useful for soil analyses and pattern matching. Useful
+-- for generalizations by soil type.
+
 SELECT
   st.st_soil_texture,
   COUNT(ss.ss_samplekey) AS sample_count,
   ROUND(AVG(ss.ss_nitrogen_ppm),2)   AS avg_nitrogen_ppm,
   ROUND(AVG(ss.ss_phosphorus_ppm),2) AS avg_phosphorus_ppm,
-  ROUND(AVG(ss.ss_potassium_ppm),2)  AS avg_potassium_ppm
+  ROUND(AVG(ss.ss_potassium_ppm),2)  AS avg_potassium_ppm,
+  ROUND(AVG(ss.ss_cec), 2) AS avg_cec
 FROM soilsample ss
 JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
 JOIN soiltype st ON fld.fld_soilkey = st.st_soilkey
@@ -283,6 +327,9 @@ ORDER BY st.st_soilkey DESC;
 .print "================================================"
 .print "QUERY 11: Active Crop Fields (as of 2019-03-15) "
 .print "================================================"
+
+-- Useful for historical records. May inform historical economic
+-- and sociopolitical patterns.
 
 SELECT
       c.c_cropkey,
@@ -300,6 +347,10 @@ HAVING (COUNT(DISTINCT fldc.fldc_fieldkey) > 0);
 .print "==========================================="
 .print "QUERY 12: Most Commonly Grown Crop"
 .print "==========================================="
+
+-- Somewhat trivial. If combined with spatial data, may
+-- further inform socioeconomic trends in the region.
+-- Indicates economic viability of crop(s) as well.
 
 SELECT
     c.c_name,
@@ -335,6 +386,9 @@ LIMIT 1;
 .print "QUERY 13: Top Producing Farmers by Crop"
 .print "==========================================="
 
+-- Analyze economic productivity by farmers for each crop.
+-- Identifies the top producers.
+
 WITH
 total_yields_by_farmer_by_crop AS (
   SELECT 
@@ -359,6 +413,8 @@ GROUP BY total.crop;
 .print "==========================================="
 .print "QUERY 14: Farmers Ranked by Avg Yield"
 .print "==========================================="
+
+-- 
 
 SELECT
   f.f_farmerkey,
