@@ -58,6 +58,7 @@ ORDER BY v.fieldkey;
 .print "==========================================="
 .print "QUERY 2: Total Crop Yields by Farmer/Crop"
 .print "==========================================="
+
 SELECT 
     f.f_name AS farmer, 
     c.c_name AS crop, 
@@ -80,6 +81,7 @@ ORDER BY
 .print "==========================================="
 .print "QUERY 3: Latest Soil Sample for Field 2"
 .print "==========================================="
+
 SELECT * FROM soilsample
 WHERE ss_fieldkey = 2
 ORDER BY ss_sampledate DESC
@@ -90,6 +92,7 @@ LIMIT 1;
 .print "==========================================="
 .print "QUERY 4: James Holloway's Metals (Last Year)"
 .print "==========================================="
+
 WITH 
 latest_sample_for_farmer AS (
     SELECT MAX(ss.ss_sampledate) AS latest_sample FROM soilsample ss
@@ -123,6 +126,7 @@ ORDER BY ss_sampledate DESC;
 .print "==========================================="
 .print "QUERY 5: Samples Exceeding Thresholds"
 .print "==========================================="
+
 SELECT
   ss.ss_samplekey,
   ss.ss_sampledate,
@@ -136,7 +140,7 @@ FROM soilsample ss
 JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
 JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
 WHERE
-  (ss.ss_lead_ppm   IS NOT NULL AND ss.ss_lead_ppm   > 100)
+  (ss.ss_lead_ppm   IS NOT NULL AND ss.ss_lead_ppm > 100)
   OR (ss.ss_cadmium_ppm IS NOT NULL AND ss.ss_cadmium_ppm > 0.48)
   OR (ss.ss_arsenic_ppm IS NOT NULL AND ss.ss_arsenic_ppm > 10)
 ORDER BY ss.ss_sampledate DESC;
@@ -146,6 +150,7 @@ ORDER BY ss.ss_sampledate DESC;
 .print "==========================================="
 .print "QUERY 6: Fields with No Recent Maintenance"
 .print "==========================================="
+
 WITH last_maint AS (
   SELECT
     fldm_fieldkey,
@@ -173,6 +178,8 @@ ORDER BY (lm.last_begindate IS NOT NULL), lm.last_begindate;
 .print "==========================================="
 .print "QUERY 7: Monthly Avg pH (Last 12 Months)"
 .print "==========================================="
+
+-- Note: Add more soil sample data for one of the returned months.
 SELECT
   strftime('%Y-%m', ss.ss_sampledate) AS year_month,
   COUNT(*) AS samples,
@@ -188,6 +195,7 @@ ORDER BY year_month;
 .print "==========================================="
 .print "QUERY 8: Maint. Cost vs Total Yield"
 .print "==========================================="
+
 WITH maint_by_year AS (
   SELECT
     fldm_fieldkey AS fieldkey,
@@ -214,13 +222,17 @@ SELECT
   END AS amount_per_yield_unit
 FROM maint_by_year m
 LEFT JOIN yield_by_year y ON m.fieldkey = y.fieldkey AND m.year = y.year
-ORDER BY amount_per_yield_unit DESC NULLS LAST;
+ORDER BY 
+      m.fieldkey ASC,
+      m.year ASC,
+      amount_per_yield_unit DESC NULLS LAST;
 
 
 .print ""
 .print "==========================================="
 .print "QUERY 9: Soil Type Mismatch"
 .print "==========================================="
+
 SELECT
   fld.fld_fieldkey,
   fld.fld_farmerkey,
@@ -242,6 +254,9 @@ LEFT JOIN soiltype st_field
     ON fld.fld_soilkey = st_field.st_soilkey
 LEFT JOIN soiltype st_pref   
     ON c.c_preferredsoil = st_pref.st_soilkey
+GROUP BY
+      fld.fld_fieldkey,
+      c.c_cropkey
 ORDER BY fld.fld_fieldkey;
 
 
@@ -249,6 +264,7 @@ ORDER BY fld.fld_fieldkey;
 .print "==========================================="
 .print "QUERY 10: Avg NPK by Soil Texture"
 .print "==========================================="
+
 SELECT
   st.st_soil_texture,
   COUNT(ss.ss_samplekey) AS sample_count,
@@ -260,13 +276,14 @@ JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
 JOIN soiltype st ON fld.fld_soilkey = st.st_soilkey
 GROUP BY st.st_soil_texture
 HAVING COUNT(ss.ss_samplekey) >= 5
-ORDER BY avg_nitrogen_ppm DESC;
+ORDER BY st.st_soilkey DESC;
 
 
 .print ""
-.print "==========================================="
-.print "QUERY 11: Active Crop Fields (as of 2019-03-15)"
-.print "==========================================="
+.print "================================================"
+.print "QUERY 11: Active Crop Fields (as of 2019-03-15) "
+.print "================================================"
+
 SELECT
       c.c_cropkey,
       c.c_name,
@@ -275,13 +292,15 @@ FROM crop c
 LEFT JOIN fieldcrop fldc 
       ON c.c_cropkey = fldc.fldc_cropkey
       AND date('2019-03-15') BETWEEN fldc.fldc_begindate AND fldc.fldc_enddate
-GROUP BY c.c_cropkey;
+GROUP BY c.c_cropkey
+HAVING (COUNT(DISTINCT fldc.fldc_fieldkey) > 0);
 
 
 .print ""
 .print "==========================================="
 .print "QUERY 12: Most Commonly Grown Crop"
 .print "==========================================="
+
 SELECT
     c.c_name,
     COUNT(DISTINCT fldc_begindate) AS total_planted
@@ -291,11 +310,15 @@ GROUP BY c.c_cropkey
 ORDER BY total_planted DESC
 LIMIT 1;
 
+-- Might not actually find most planted. DISTINCT fldc_begindate may collapse information of multiple crops
+-- planted at the same date. Fragile at best
+
 
 .print ""
 .print "==========================================="
 .print "QUERY 13: Top Producing Farmers by Crop"
 .print "==========================================="
+
 WITH
 total_yields_by_farmer_by_crop AS (
   SELECT 
@@ -312,7 +335,7 @@ total_yields_by_farmer_by_crop AS (
     c.c_cropkey,
     units
 )
-SELECT total.farmer, total.crop, MAX(total.yield), total.units FROM total_yields_by_farmer_by_crop total
+SELECT total.farmer, total.crop, MAX(total.yield) AS total_yield, total.units FROM total_yields_by_farmer_by_crop total
 GROUP BY total.crop;
 
 
@@ -320,6 +343,7 @@ GROUP BY total.crop;
 .print "==========================================="
 .print "QUERY 14: Farmers Ranked by Avg Yield"
 .print "==========================================="
+
 SELECT
   f.f_farmerkey,
   TRIM(f.f_name || ' ' || f.f_surname) AS farmer_name,
@@ -336,6 +360,7 @@ ORDER BY avg_yield_per_active_crop DESC;
 .print "==========================================="
 .print "QUERY 15: Crop vs Field pH Mismatch"
 .print "==========================================="
+
 WITH field_avg AS (
   SELECT fld.fld_fieldkey, AVG(ss.ss_ph) AS avg_ph
   FROM field fld
@@ -371,6 +396,7 @@ ORDER BY ph_diff DESC;
 .print "==========================================="
 .print "QUERY 16: Total Yield Per Season"
 .print "==========================================="
+
 SELECT
   s.s_seasonkey,
   s.s_name,
@@ -382,11 +408,14 @@ JOIN fieldcrop fc ON fc.fldc_cropkey = c.c_cropkey
 GROUP BY s.s_seasonkey, s.s_name
 ORDER BY total_yield DESC;
 
+-- Finding sum of crop yields for crops of similar seasons?
+
 
 .print ""
 .print "==========================================="
 .print "QUERY 17: Crop Rotation History"
 .print "==========================================="
+
 WITH crop_history AS (
   SELECT
     fc.fldc_fieldkey,
@@ -417,6 +446,7 @@ WHERE current_harvest.rn = 1
 .print "==========================================="
 .print "QUERY 18: Fieldcrops Within Season"
 .print "==========================================="
+
 SELECT
   fc.*,
   f.f_farmerkey,
@@ -434,6 +464,7 @@ ORDER BY fc.fldc_begindate;
 .print "==========================================="
 .print "QUERY 19: Avg Yield per Crop per Season"
 .print "==========================================="
+
 SELECT
   c.c_cropkey,
   c.c_name,
@@ -450,9 +481,10 @@ ORDER BY c.c_cropkey, avg_yield DESC;
 
 
 .print ""
-.print "==========================================="
-.print "QUERY 20: Nutrients & Organic Matter/Season"
-.print "==========================================="
+.print "==============================================="
+.print "QUERY 20: Nutrients & Organic Matter Per Season"
+.print "==============================================="
+
 WITH sample_season AS (
   SELECT
     fld.fld_fieldkey,
