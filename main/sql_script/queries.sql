@@ -310,8 +310,24 @@ GROUP BY c.c_cropkey
 ORDER BY total_planted DESC
 LIMIT 1;
 
--- Might not actually find most planted. DISTINCT fldc_begindate may collapse information of multiple crops
--- planted at the same date. Fragile at best
+-- Query that explicitly shows distinctness of begindate and crops.
+-- Returns the same result(s) as the above query would.
+
+-- WITH distinct_plantings AS (
+--   SELECT DISTINCT
+--     fldc_cropkey,
+--     fldc_begindate
+--   FROM fieldcrop
+-- )
+-- SELECT
+--   c.c_cropkey,
+--   c.c_name AS crop_name,
+--   COUNT(*) AS planting_count
+-- FROM distinct_plantings dp
+-- JOIN crop c ON dp.fldc_cropkey = c.c_cropkey
+-- GROUP BY dp.fldc_cropkey, c.c_name
+-- ORDER BY planting_count DESC;
+
 
 
 .print ""
