@@ -414,7 +414,7 @@ GROUP BY total.crop;
 .print "QUERY 14: Farmers Ranked by Avg Yield"
 .print "==========================================="
 
--- 
+-- Rank farmer productivity
 
 SELECT
   f.f_farmerkey,
@@ -432,6 +432,11 @@ ORDER BY avg_yield_per_active_crop DESC;
 .print "==========================================="
 .print "QUERY 15: Crop vs Field pH Mismatch"
 .print "==========================================="
+
+-- See which pairs of crops and field pH mismatch. This is not
+-- necessarily a bad thing due to variance in crop tolerance,
+-- but may help further inform pattern matching of crop 
+-- performance and their conditions.
 
 WITH field_avg AS (
   SELECT fld.fld_fieldkey, AVG(ss.ss_ph) AS avg_ph
@@ -469,6 +474,8 @@ ORDER BY ph_diff DESC;
 .print "QUERY 16: Total Yield Per Season"
 .print "==========================================="
 
+ -- Useful for pattern recognition by season. (Including economic productivity)
+
 SELECT
   s.s_seasonkey,
   s.s_name,
@@ -480,13 +487,12 @@ JOIN fieldcrop fc ON fc.fldc_cropkey = c.c_cropkey
 GROUP BY s.s_seasonkey, s.s_name
 ORDER BY total_yield DESC;
 
--- Finding sum of crop yields for crops of similar seasons?
-
-
 .print ""
 .print "==========================================="
 .print "QUERY 17: Crop Rotation History"
 .print "==========================================="
+
+-- 
 
 WITH crop_history AS (
   SELECT
