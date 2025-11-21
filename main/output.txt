@@ -1,0 +1,345 @@
+
+===========================================
+QUERY 1: Soil Component Statistics by Field
+===========================================
+fieldkey              mean_sand             std_dev_sand          mean_silt             std_dev_silt          mean_clay             std_dev_clay          mean_ph               std_dev_ph          
+--------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------
+1                     60.0                  0.15                  15.04                 0.22                  24.97                 0.1                   6.41                  0.04                
+2                     39.93                 0.22                  40.61                 0.46                  19.43                 0.34                  6.8                   0.05                
+3                     10.99                 0.09                  44.91                 0.13                  44.1                  0.07                  6.54                  0.05                
+8                     34.94                 0.2                   32.07                 0.2                   32.99                 0.04                  6.55                  0.11                
+27                    92.0                                        5.0                                         3.0                                         6.8                                       
+
+===========================================
+QUERY 2: Total Crop Yields by Farmer/Crop
+===========================================
+farmer                crop                  yield                 units               
+--------------------  --------------------  --------------------  --------------------
+James                 Table Grape           3400                  kg/ha               
+James                 Rice                  9390                  kg/ha               
+James                 Almond                9775                  kg/ha               
+James                 Alfalfa               78800                 kg/ha               
+James                 Tomato                99250                 kg/ha               
+Sofia                 Alfalfa               31860                 kg/ha               
+Sofia                 Pistachio             36160                 kg/ha               
+Noah                  Orange                3500                  kg/ha               
+Noah                  Walnut                4200                  kg/ha               
+
+===========================================
+QUERY 3: Latest Soil Sample for Field 2
+===========================================
+ss_samplekey          ss_fieldkey           ss_sampledate         ss_sand               ss_silt               ss_clay               ss_ph                 ss_nitrogen_ppm       ss_phosphorus_ppm     ss_potassium_ppm      ss_organicmatter_pct  ss_cec  ss_lead_ppm  ss_mercury_ppm  ss_nickel_ppm  ss_copper_ppm  ss_chromium_ppm  ss_cadmium_ppm  ss_arsenic_ppm  ss_zinc_ppm  ss_comment                     
+--------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  ------  -----------  --------------  -------------  -------------  ---------------  --------------  --------------  -----------  -------------------------------
+72                    2                     2024-10-15            39.6                  41.1                  19.3                  6.77                  22.25                 12.45                 29.1                  3.95                  15.2    0            0               0              0              0                0               0               0            Late summer harvest observation
+
+===========================================
+QUERY 4: James Holloway's Metals (Last Year)
+===========================================
+farmer_name           date                  lead                  mercury               nickel                copper                chromium              cadmium               arsenic               zinc                
+--------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------
+James Holloway        2023-12-05            0.001                 0                     0.002                 0.001                 0.001                 0                     0.005                 0.003               
+James Holloway        2023-09-10            0.001                 0                     0.002                 0.001                 0.001                 0                     0.005                 0.003               
+James Holloway        2023-06-15            0.001                 0                     0.002                 0.001                 0.001                 0                     0.005                 0.003               
+James Holloway        2023-03-10            0.001                 0                     0.002                 0.001                 0.001                 0                     0.005                 0.003               
+James Holloway        2022-12-05            0.001                 0                     0.002                 0.001                 0.001                 0                     0.005                 0.003               
+
+===========================================
+QUERY 5: Samples Exceeding Thresholds
+===========================================
+ss_samplekey          ss_sampledate         fld_fieldkey          f_farmerkey           farmer_name           ss_lead_ppm           ss_cadmium_ppm        ss_arsenic_ppm      
+--------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------
+79                    2023-06-15            27                    27                    Samuel Moore          120.123               0.056                 3.21                
+83                    2021-09-10            8                     8                     Isabella Martinez     100.75                0.007                 0.19                
+82                    2021-03-15            8                     8                     Isabella Martinez     130                   0.008                 0.2                 
+81                    2020-09-15            8                     8                     Isabella Martinez     150.25                0.009                 0.21                
+80                    2020-03-10            8                     8                     Isabella Martinez     180.5                 0.01                  0.22                
+
+===========================================
+QUERY 6: Fields with No Recent Maintenance
+===========================================
+fld_fieldkey          fld_farmerkey         farmer_name           fld_soilkey           last_begindate      
+--------------------  --------------------  --------------------  --------------------  --------------------
+4                     4                     Aisha Khan            8                                         
+5                     5                     Liam Nguyen           5                                         
+6                     6                     Olivia Bennett        7                                         
+7                     7                     Ethan Okoro           10                                        
+8                     8                     Isabella Martinez     3                                         
+9                     9                     Lucas Chen            7                                         
+10                    10                    Mia Anderson          11                                        
+11                    11                    Alexander Garcia      11                                        
+12                    12                    Harper Ali            8                                         
+13                    13                    Benjamin Silva        5                                         
+14                    14                    Ella Johnson          4                                         
+15                    15                    Henry Thomas          8                                         
+16                    16                    Grace Williams        8                                         
+17                    17                    Daniel Kim            3                                         
+18                    18                    Amara Mensah          6                                         
+19                    19                    Jack O'Connor         5                                         
+20                    20                    Chloe White           2                                         
+21                    21                    Jacob Peterson        8                                         
+22                    22                    Sarah Lee             12                                        
+23                    23                    Matthew Rossi         6                                         
+24                    24                    Emily Tan             2                                         
+25                    25                    William Smith         12                                        
+26                    26                    Charlotte Davis       5                                         
+27                    27                    Samuel Moore          1                                         
+28                    28                    Nora Hernandez        12                                        
+29                    29                    David Brown           10                                        
+30                    30                    Zoe Clark             6                                         
+3                     3                     Noah Patel            11                    2016-04-15          
+
+===========================================
+QUERY 7: Monthly Avg pH (Last 12 Months)
+===========================================
+year_month            samples               avg_ph              
+--------------------  --------------------  --------------------
+2024-03               1                     6.81                
+2024-06               3                     6.87                
+2024-10               1                     6.77                
+
+===========================================
+QUERY 8: Maint. Cost vs Total Yield
+===========================================
+fieldkey              year                  total_maint_amount    total_yield           amount_per_yield_uni
+--------------------  --------------------  --------------------  --------------------  --------------------
+1                     2016                  3131.5                5220                  0.599904            
+1                     2017                  11744.0               26115                 0.449703            
+1                     2018                  9282.4                17490                 0.530726            
+1                     2019                  9958.25               48695                 0.204503            
+1                     2020                  3495.85               38455                 0.090908            
+1                     2021                  19009.25              20910                 0.909099            
+1                     2022                  16184.3               21330                 0.758758            
+1                     2023                  16434.4               21610                 0.7605              
+2                     2016                  5701.8                7500                  0.76024             
+2                     2017                  3402.0                7570                  0.449406            
+2                     2018                  3452.15               7580                  0.455429            
+2                     2019                  3557.35               7530                  0.472424            
+2                     2020                  3602.5                7525                  0.478738            
+2                     2021                  3702.65               7585                  0.488154            
+2                     2022                  3747.85               7580                  0.494439            
+2                     2023                  3848.05               7545                  0.510013            
+3                     2016                  3700                  7700                  0.0                 
+
+===========================================
+QUERY 9: Soil Type Mismatch
+===========================================
+fld_fieldkey          fld_farmerkey         farmer_name           c_cropkey             crop_name             field_soilkey         field_soil_texture    crop_preferred_soil   crop_preferred_soil_
+--------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------
+1                     1                     James Holloway        1                     Almond                7                     Sandy Clay Loam       4                     Loam                
+1                     1                     James Holloway        3                     Tomato                7                     Sandy Clay Loam       3                     Sandy Loam          
+1                     1                     James Holloway        4                     Alfalfa               7                     Sandy Clay Loam       4                     Loam                
+1                     1                     James Holloway        5                     Rice                  7                     Sandy Clay Loam       12                    Clay                
+1                     1                     James Holloway        6                     Table Grape           7                     Sandy Clay Loam       4                     Loam                
+2                     2                     Sofia Ramirez         2                     Pistachio             4                     Loam                  3                     Sandy Loam          
+2                     2                     Sofia Ramirez         4                     Alfalfa               4                     Loam                  4                     Loam                
+3                     3                     Noah Patel            7                     Walnut                11                    Silty Clay            4                     Loam                
+3                     3                     Noah Patel            12                    Orange                11                    Silty Clay            3                     Sandy Loam          
+
+===========================================
+QUERY 10: Avg NPK by Soil Texture
+===========================================
+st_soil_texture       sample_count          avg_nitrogen_ppm      avg_phosphorus_ppm    avg_potassium_ppm     avg_cec             
+--------------------  --------------------  --------------------  --------------------  --------------------  --------------------
+Silty Clay            6                     28.44                 18.62                 120.98                25.22               
+Sandy Clay Loam       45                    29.85                 14.07                 31.97                 16.76               
+Loam                  29                    22.1                  12.3                  28.98                 15.2                
+Sandy Loam            7                     21.33                 11.94                 174.29                20.5                
+
+================================================
+QUERY 11: Active Crop Fields (as of 2019-03-15) 
+================================================
+c_cropkey             c_name                active_fields       
+--------------------  --------------------  --------------------
+1                     Almond                3                   
+2                     Pistachio             1                   
+4                     Alfalfa               5                   
+
+===========================================
+QUERY 12: Most Commonly Grown Crop
+===========================================
+c_name                total_planted       
+--------------------  --------------------
+Alfalfa               26                  
+
+===========================================
+QUERY 13: Top Producing Farmers by Crop
+===========================================
+farmer                crop                  total_yield           units               
+--------------------  --------------------  --------------------  --------------------
+James Holloway        Alfalfa               78800                 kg/ha               
+James Holloway        Almond                9775                  kg/ha               
+Noah Patel            Orange                3500                  kg/ha               
+Sofia Ramirez         Pistachio             36160                 kg/ha               
+James Holloway        Rice                  9390                  kg/ha               
+James Holloway        Table Grape           3400                  kg/ha               
+James Holloway        Tomato                99250                 kg/ha               
+Noah Patel            Walnut                4200                  kg/ha               
+
+===========================================
+QUERY 14: Farmers Ranked by Avg Yield
+===========================================
+f_farmerkey           farmer_name           avg_yield_per_active  active_fields_count 
+--------------------  --------------------  --------------------  --------------------
+3                     Noah Patel            3850.0                2                   
+2                     Sofia Ramirez         3778.89               18                  
+1                     James Holloway        2994.25               67                  
+
+===========================================
+QUERY 15: Crop vs Field pH Mismatch
+===========================================
+fld_fieldkey          farmer_name           c_cropkey             c_name                field_avg_ph          crop_pref_ph          ph_diff               occurrences         
+--------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------
+2                     Sofia Ramirez         4                     Alfalfa               6.8                   6                     0.796                 9                   
+1                     James Holloway        4                     Alfalfa               6.41                  6                     0.407                 21                  
+1                     James Holloway        5                     Rice                  6.41                  6                     0.407                 8                   
+3                     Noah Patel            7                     Walnut                6.54                  6.8                   0.26                  1                   
+1                     James Holloway        3                     Tomato                6.41                  6.2                   0.207                 21                  
+2                     Sofia Ramirez         2                     Pistachio             6.8                   7                     0.204                 9                   
+1                     James Holloway        1                     Almond                6.41                  6.5                   0.093                 13                  
+1                     James Holloway        6                     Table Grape           6.41                  6.5                   0.093                 4                   
+3                     Noah Patel            12                    Orange                6.54                  6.5                   0.04                  1                   
+
+===========================================
+QUERY 16: Total Yield Per Season
+===========================================
+s_seasonkey           s_name                total_yield           plantings_count     
+--------------------  --------------------  --------------------  --------------------
+2                     Summer                112040.0              33                  
+1                     Spring                110660.0              30                  
+4                     Winter                53635.0               24                  
+
+===========================================
+QUERY 17: Crop Rotation History
+===========================================
+fldc_fieldkey         current_cropkey       previous_cropkey      current_crop_name     previous_crop_name  
+--------------------  --------------------  --------------------  --------------------  --------------------
+1                     1                     4                     Almond                Alfalfa             
+2                     2                     4                     Pistachio             Alfalfa             
+3                     7                     12                    Walnut                Orange              
+
+===========================================
+QUERY 18: Fieldcrops Within Season
+===========================================
+fldc_fieldkey         fldc_cropkey          fldc_begindate        fldc_enddate          fldc_yield            fldc_yield_unit       f_farmerkey           farmer_name           crop_name           
+--------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------
+1                     1                     2016-02-15            2016-12-15            720                   kg/ha                 1                     James Holloway        Almond              
+1                     1                     2016-02-15            2017-12-15            730                   kg/ha                 1                     James Holloway        Almond              
+2                     2                     2016-03-15            2016-12-20            4000                  kg/ha                 2                     Sofia Ramirez         Pistachio           
+2                     4                     2016-03-20            2016-09-15            3500                  kg/ha                 2                     Sofia Ramirez         Alfalfa             
+3                     7                     2016-03-20            2016-09-25            4200                  kg/ha                 3                     Noah Patel            Walnut              
+3                     12                    2016-04-05            2016-09-10            3500                  kg/ha                 3                     Noah Patel            Orange              
+1                     3                     2016-06-05            2016-09-15            4500                  kg/ha                 1                     James Holloway        Tomato              
+1                     4                     2016-09-25            2017-03-20            3500                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     1                     2017-02-15            2017-12-15            735                   kg/ha                 1                     James Holloway        Almond              
+1                     4                     2017-03-01            2017-09-20            3600                  kg/ha                 1                     James Holloway        Alfalfa             
+2                     2                     2017-03-15            2017-12-20            4020                  kg/ha                 2                     Sofia Ramirez         Pistachio           
+2                     4                     2017-03-22            2017-09-12            3550                  kg/ha                 2                     Sofia Ramirez         Alfalfa             
+1                     3                     2017-06-05            2017-09-10            4600                  kg/ha                 1                     James Holloway        Tomato              
+1                     4                     2017-09-01            2017-12-15            3650                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     3                     2017-09-15            2017-12-01            4650                  kg/ha                 1                     James Holloway        Tomato              
+1                     3                     2017-09-15            2017-12-01            4650                  kg/ha                 1                     James Holloway        Tomato              
+1                     1                     2017-12-01            2018-12-10            740                   kg/ha                 1                     James Holloway        Almond              
+1                     4                     2018-03-01            2018-09-15            3700                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     4                     2018-03-05            2018-09-15            3700                  kg/ha                 1                     James Holloway        Alfalfa             
+2                     2                     2018-03-15            2018-12-20            3980                  kg/ha                 2                     Sofia Ramirez         Pistachio           
+2                     4                     2018-03-25            2018-09-14            3600                  kg/ha                 2                     Sofia Ramirez         Alfalfa             
+1                     3                     2018-06-05            2018-09-10            4650                  kg/ha                 1                     James Holloway        Tomato              
+1                     3                     2018-06-10            2018-09-20            4700                  kg/ha                 1                     James Holloway        Tomato              
+1                     1                     2018-12-01            2019-12-05            745                   kg/ha                 1                     James Holloway        Almond              
+1                     1                     2019-02-15            2019-12-15            750                   kg/ha                 1                     James Holloway        Almond              
+1                     1                     2019-02-15            2019-12-15            750                   kg/ha                 1                     James Holloway        Almond              
+1                     4                     2019-03-05            2019-09-15            3750                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     4                     2019-03-05            2019-09-15            3750                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     4                     2019-03-05            2019-09-15            3750                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     4                     2019-03-15            2019-09-20            3800                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     4                     2019-03-15            2019-09-20            3800                  kg/ha                 1                     James Holloway        Alfalfa             
+2                     2                     2019-03-15            2019-12-20            4050                  kg/ha                 2                     Sofia Ramirez         Pistachio           
+2                     4                     2019-03-20            2019-09-15            3480                  kg/ha                 2                     Sofia Ramirez         Alfalfa             
+1                     3                     2019-06-05            2019-09-10            4700                  kg/ha                 1                     James Holloway        Tomato              
+1                     3                     2019-06-10            2019-09-20            4750                  kg/ha                 1                     James Holloway        Tomato              
+1                     3                     2019-06-10            2019-09-20            4750                  kg/ha                 1                     James Holloway        Tomato              
+1                     3                     2019-06-10            2019-09-20            4750                  kg/ha                 1                     James Holloway        Tomato              
+1                     4                     2019-09-01            2019-12-15            3850                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     3                     2019-09-15            2019-12-01            4800                  kg/ha                 1                     James Holloway        Tomato              
+1                     1                     2019-12-01            2020-12-10            755                   kg/ha                 1                     James Holloway        Almond              
+1                     1                     2019-12-15            2020-12-10            750                   kg/ha                 1                     James Holloway        Almond              
+1                     4                     2020-03-01            2020-09-15            3950                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     4                     2020-03-01            2020-09-20            3800                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     4                     2020-03-05            2020-09-15            3700                  kg/ha                 1                     James Holloway        Alfalfa             
+2                     2                     2020-03-15            2020-12-20            4005                  kg/ha                 2                     Sofia Ramirez         Pistachio           
+1                     5                     2020-03-20            2020-06-15            1200                  kg/ha                 1                     James Holloway        Rice                
+2                     4                     2020-03-23            2020-09-16            3520                  kg/ha                 2                     Sofia Ramirez         Alfalfa             
+1                     3                     2020-06-05            2020-09-10            4750                  kg/ha                 1                     James Holloway        Tomato              
+1                     3                     2020-06-05            2020-09-10            4750                  kg/ha                 1                     James Holloway        Tomato              
+1                     3                     2020-06-10            2020-09-20            4700                  kg/ha                 1                     James Holloway        Tomato              
+1                     6                     2020-06-20            2020-09-05            800                   kg/ha                 1                     James Holloway        Table Grape         
+1                     4                     2020-09-01            2020-12-15            3650                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     3                     2020-09-10            2020-12-05            4650                  kg/ha                 1                     James Holloway        Tomato              
+1                     5                     2020-09-15            2020-11-20            1000                  kg/ha                 1                     James Holloway        Rice                
+1                     1                     2020-12-01            2021-12-10            760                   kg/ha                 1                     James Holloway        Almond              
+1                     4                     2021-03-05            2021-09-20            3750                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     5                     2021-03-15            2021-06-10            1250                  kg/ha                 1                     James Holloway        Rice                
+2                     2                     2021-03-15            2021-12-20            4030                  kg/ha                 2                     Sofia Ramirez         Pistachio           
+2                     4                     2021-03-21            2021-09-15            3555                  kg/ha                 2                     Sofia Ramirez         Alfalfa             
+1                     3                     2021-06-05            2021-09-10            4800                  kg/ha                 1                     James Holloway        Tomato              
+1                     6                     2021-06-15            2021-09-05            850                   kg/ha                 1                     James Holloway        Table Grape         
+1                     4                     2021-09-01            2021-12-15            3700                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     3                     2021-09-10            2021-12-05            4700                  kg/ha                 1                     James Holloway        Tomato              
+1                     5                     2021-09-15            2021-11-20            1100                  kg/ha                 1                     James Holloway        Rice                
+1                     1                     2021-12-01            2022-12-10            770                   kg/ha                 1                     James Holloway        Almond              
+1                     4                     2022-03-05            2022-09-20            3850                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     5                     2022-03-15            2022-06-10            1270                  kg/ha                 1                     James Holloway        Rice                
+2                     2                     2022-03-15            2022-12-20            4010                  kg/ha                 2                     Sofia Ramirez         Pistachio           
+2                     4                     2022-03-24            2022-09-14            3570                  kg/ha                 2                     Sofia Ramirez         Alfalfa             
+1                     3                     2022-06-05            2022-09-10            4900                  kg/ha                 1                     James Holloway        Tomato              
+1                     6                     2022-06-15            2022-09-05            870                   kg/ha                 1                     James Holloway        Table Grape         
+1                     4                     2022-09-01            2022-12-15            3800                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     3                     2022-09-10            2022-12-05            4750                  kg/ha                 1                     James Holloway        Tomato              
+1                     5                     2022-09-15            2022-11-20            1120                  kg/ha                 1                     James Holloway        Rice                
+1                     1                     2022-12-01            2023-12-10            780                   kg/ha                 1                     James Holloway        Almond              
+1                     4                     2023-03-05            2023-09-20            3900                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     5                     2023-03-15            2023-06-10            1300                  kg/ha                 1                     James Holloway        Rice                
+2                     2                     2023-03-15            2023-12-20            4040                  kg/ha                 2                     Sofia Ramirez         Pistachio           
+2                     4                     2023-03-22            2023-09-16            3505                  kg/ha                 2                     Sofia Ramirez         Alfalfa             
+1                     3                     2023-06-05            2023-09-10            4950                  kg/ha                 1                     James Holloway        Tomato              
+1                     6                     2023-06-15            2023-09-05            880                   kg/ha                 1                     James Holloway        Table Grape         
+1                     4                     2023-09-01            2023-12-15            3850                  kg/ha                 1                     James Holloway        Alfalfa             
+1                     3                     2023-09-10            2023-12-05            4800                  kg/ha                 1                     James Holloway        Tomato              
+1                     5                     2023-09-15            2023-11-20            1150                  kg/ha                 1                     James Holloway        Rice                
+1                     1                     2023-12-01            2024-12-10            790                   kg/ha                 1                     James Holloway        Almond              
+2                     2                     2024-03-15            2024-12-20            4025                  kg/ha                 2                     Sofia Ramirez         Pistachio           
+2                     4                     2024-03-21            2024-09-15            3580                  kg/ha                 2                     Sofia Ramirez         Alfalfa             
+
+===========================================
+QUERY 19: Avg Yield per Crop per Season
+===========================================
+c_cropkey             c_name                s_seasonkey           s_name                avg_yield             observations        
+--------------------  --------------------  --------------------  --------------------  --------------------  --------------------
+1                     Almond                4                     Winter                751.92                13                  
+2                     Pistachio             4                     Winter                4017.78               9                   
+3                     Tomato                2                     Summer                4726.19               21                  
+4                     Alfalfa               1                     Spring                3688.67               30                  
+5                     Rice                  2                     Summer                1173.75               8                   
+6                     Table Grape           2                     Summer                850.0                 4                   
+7                     Walnut                4                     Winter                4200.0                1                   
+12                    Orange                4                     Winter                3500.0                1                   
+
+===============================================
+QUERY 20: Nutrients & Organic Matter Per Season
+===============================================
+field_key             season_name           sample_count          avg_nitrogen_ppm      min_nitrogen_ppm      max_nitrogen_ppm      avg_phosphorus_ppm    avg_potassium_ppm     avg_organicmatter_pc  first_sample_date     last_sample_date
+--------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  ----------------
+1                     Autumn                11                    29.94                 26.5                  31.4                  14.14                 32.05                 3.96                  2016-10-05            2023-09-10      
+1                     Spring                9                     29.67                 28.0                  31.1                  13.88                 31.88                 3.84                  2017-03-15            2023-03-10      
+1                     Summer                10                    29.74                 27.1                  31.3                  14.05                 31.97                 3.86                  2016-06-15            2023-06-15      
+1                     Winter                15                    29.96                 25.45                 31.7                  14.16                 31.97                 4.0                   2016-02-10            2023-12-05      
+2                     Autumn                9                     22.33                 22.25                 22.5                  12.46                 29.08                 3.94                  2016-09-15            2024-10-15      
+2                     Spring                9                     22.05                 22.0                  22.14                 12.21                 28.86                 3.89                  2016-03-10            2024-03-15      
+2                     Summer                11                    21.96                 21.8                  22.1                  12.24                 28.99                 3.92                  2016-06-05            2024-06-30      
+3                     Autumn                1                     28.8                  28.8                  28.8                  19.1                  122.0                 3.45                  2016-09-01            2016-09-01      
+3                     Spring                3                     28.18                 27.8                  28.5                  18.23                 120.18                3.23                  2016-03-15            2016-03-15      
+3                     Summer                2                     28.65                 28.6                  28.7                  18.95                 121.65                3.41                  2016-07-10            2016-08-05      
+8                     Autumn                3                     20.77                 15.0                  26.8                  11.7                  170.0                 5.0                   2020-09-15            2022-11-05      
+8                     Spring                3                     23.5                  18.0                  28.5                  12.67                 186.67                4.83                  2020-03-10            2022-03-15      
+8                     Summer                1                     16.5                  16.5                  16.5                  10.5                  150.0                 5.3                   2022-06-20            2022-06-20      
+27                    Summer                1                     25.0                  25.0                  25.0                  15.0                  180.0                 6.5                   2023-06-15            2023-06-15      
