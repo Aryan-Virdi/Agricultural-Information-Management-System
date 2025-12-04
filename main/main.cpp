@@ -492,7 +492,7 @@ int main (int argc, char* argv[]) {
 	sj.OpenConnection();
 
     sj.DropTable();
-    sj.CreateTable();
+    // sj.CreateTable();
     sj.PopulateTable();
     
     sj.Q1();
