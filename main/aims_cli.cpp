@@ -145,7 +145,7 @@ struct DB {
 
 void show_all_fields(DB &db) {
     cout << "\n-- All fields --\n";
-    db.run_and_print("SELECT fld_fieldkey AS id, fld_farmerkey AS farmer_id, fld_soilkey AS soil_type, fld_area FROM field ORDER BY fld_fieldkey;");
+    db.run_and_print("SELECT fld_fieldkey AS id, fld_farmerkey AS farmer_id, fld_soilkey AS soil_type FROM field ORDER BY fld_fieldkey;");
 }
 
 void crops_by_season(DB &db) {
