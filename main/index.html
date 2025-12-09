@@ -1,0 +1,741 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AIMS — Web UI</title>
+
+<!-- Google-like simple theme -->
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#fff;
+    --accent:#1a73e8;
+    --muted:#5f6368;
+    --rounded:12px;
+    --gap:16px;
+    font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:#202124}
+  .app {
+    display:grid;
+    grid-template-columns: 280px 1fr;
+    gap:var(--gap);
+    padding:24px;
+    height:100vh;
+    box-sizing:border-box;
+  }
+  .sidebar {
+    background:linear-gradient(180deg, #ffffff, #fbfbfd);
+    border-radius:var(--rounded);
+    padding:18px;
+    box-shadow:0 6px 18px rgba(60,64,67,0.08);
+    display:flex;flex-direction:column;
+  }
+  .logo {
+    display:flex;align-items:center;gap:12px;margin-bottom:14px;
+  }
+  .logo .dot {width:36px;height:36px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+  h1{font-size:16px;margin:0}
+  p.small{font-size:12px;color:var(--muted);margin:4px 0 12px}
+  .menu{display:flex;flex-direction:column;gap:8px;overflow:auto;padding-bottom:8px}
+  .menu button{
+    text-align:left;padding:10px 12px;border-radius:10px;border:0;background:transparent;cursor:pointer;font-size:14px;color:#202124;
+  }
+  .menu button.active, .menu button:hover{
+    background:rgba(26,115,232,0.08);
+    color:var(--accent);
+  }
+  .content {
+    padding:18px;border-radius:var(--rounded);background:var(--card);
+    box-shadow:0 6px 18px rgba(60,64,67,0.06);overflow:auto;
+  }
+  .toolbar {display:flex;gap:12px;align-items:center;margin-bottom:12px}
+  input[type="file"]{display:none}
+  .btn {
+    padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:white;cursor:pointer;
+    font-weight:600;
+  }
+  .btn.secondary {background:#e8f0fe;color:var(--accent);font-weight:600}
+  .row {display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  label {font-size:13px;color:var(--muted);min-width:140px}
+  .card {background:#fff;padding:12px;border-radius:10px;margin-bottom:12px;box-shadow:0 2px 6px rgba(60,64,67,0.04)}
+  table {width:100%;border-collapse:collapse;font-size:13px}
+  th,td {padding:8px;border-bottom:1px solid #eee;text-align:left}
+  pre {background:#f8f9fa;padding:10px;border-radius:8px;overflow:auto}
+  .small {font-size:13px;color:var(--muted)}
+  .muted {color:var(--muted)}
+  .controls {display:flex;gap:8px;flex-wrap:wrap}
+  .footer {margin-top:18px;font-size:13px;color:var(--muted)}
+  .input {padding:8px;border-radius:8px;border:1px solid #e6e6e6;min-width:160px}
+  .danger {background:#ffebee;color:#b00020}
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr; padding:12px}
+    .sidebar{order:2}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo">
+      <div class="dot">A</div>
+      <div>
+        <h1>AIMS — Web UI</h1>
+        <p class="small">SQLite viewer & editor — Google-themed</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="small muted">Database</div>
+      <div id="dbStatus" class="muted">No DB loaded</div>
+      <div style="margin-top:8px;">
+        <label class="small">Auto-load path</label>
+        <div class="small muted">/database/aims.sqlite (served from same host)</div>
+      </div>
+    </div>
+
+    <div style="flex:1; display:flex; flex-direction:column">
+      <div class="menu" id="menu">
+        <!-- menu items inserted by JS -->
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="small muted">Load DB manually</div>
+      <div class="row" style="margin-top:8px">
+        <label for="filePicker" class="small">Upload file</label>
+        <input id="filePicker" type="file" accept=".sqlite,.db" />
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button id="downloadDbBtn" class="btn secondary" disabled>Download modified DB</button>
+        <button id="resetBtn" class="btn" style="background:#efefef;color:#333">Reset</button>
+      </div>
+      <div class="footer">Tip: Serve this folder with a static server so the DB at <code>/database/aims.sqlite</code> can be auto-loaded.</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="toolbar">
+      <div style="flex:1">
+        <h2 id="pageTitle">Menu</h2>
+        <div class="small muted" id="pageSub">Choose an operation from the left</div>
+      </div>
+      <div class="controls">
+        <button id="tryAutoLoad" class="btn secondary">Try auto-load DB</button>
+      </div>
+    </div>
+
+    <div id="mainBody">
+      <div class="card">
+        <h3>Welcome</h3>
+        <p class="small muted">This web UI reproduces the CLI menu you provided. Click any menu item to run queries or insert data. The UI runs the SQLite database in-memory using <strong>sql.js</strong>. Inserts update the in-memory DB; you may download it afterwards.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- sql.js from CDN (will fetch wasm) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+
+<script>
+/*
+  AIMS Web UI
+  - tries to fetch /database/aims.sqlite
+  - falls back to file upload
+  - provides the full menu and forms corresponding to the CLI program
+*/
+
+const MENU_ITEMS = [
+  { id:1, title:"Show all fields", fn:"show_all_fields" },
+  { id:2, title:"View crops by season", fn:"crops_by_season" },
+  { id:3, title:"Avg yield per field", fn:"avg_yield_per_field" },
+  { id:4, title:"Latest soil sample for field", fn:"latest_soil_sample_for_field" },
+  { id:5, title:"Samples exceeding thresholds", fn:"samples_exceeding_thresholds" },
+  { id:6, title:"Fields with no recent maintenance (>3 years)", fn:"fields_no_recent_maintenance" },
+  { id:7, title:"Avg NPK by soil texture (>=5 samples)", fn:"avg_npk_by_soil_texture" },
+  { id:8, title:"Total yield per season", fn:"total_yield_per_season" },
+  { id:9, title:"Crop rotation history for a field", fn:"crop_rotation_history" },
+  { id:10, title:"Insert new fieldcrop", fn:"insert_fieldcrop" },
+  { id:11, title:"Insert new soilsample", fn:"insert_soilsample" }
+];
+
+let SQL = null;         // sql.js object
+let db = null;          // current Database instance (sql.js)
+let dbUint8Array = null; // raw bytes of loaded DB (for download)
+let currentMenu = null;
+
+function setStatus(text, ok=true){
+  const el = document.getElementById('dbStatus');
+  el.textContent = text;
+  el.style.color = ok ? 'var(--muted)' : '#b00020';
+}
+
+function renderMenu() {
+  const menu = document.getElementById('menu');
+  menu.innerHTML = '';
+  for (const it of MENU_ITEMS) {
+    const btn = document.createElement('button');
+    btn.textContent = it.title;
+    btn.onclick = ()=>{ selectMenu(it); };
+    btn.id = 'menu_'+it.id;
+    menu.appendChild(btn);
+  }
+}
+
+function selectMenu(item){
+  currentMenu = item;
+  // set active class
+  for (const it of MENU_ITEMS) {
+    const btn = document.getElementById('menu_'+it.id);
+    btn.classList.toggle('active', it.id === item.id);
+  }
+  document.getElementById('pageTitle').textContent = item.title;
+  document.getElementById('pageSub').textContent = 'Interactive form and results for: ' + item.title;
+  showPageFor(item.fn);
+}
+
+/* --- Utilities to run queries and display results --- */
+
+function ensureDbLoaded() {
+  if (!db) throw new Error('No DB loaded. Use "Try auto-load" or upload a file.');
+}
+
+function runSelectAndRender(sql, params=[]) {
+  ensureDbLoaded();
+  try {
+    // use prepared stmt for parameters
+    if (params.length === 0) {
+      const res = db.exec(sql);
+      renderQueryResult(res);
+      return res;
+    } else {
+      const stmt = db.prepare(sql);
+      const rows = [];
+      while(stmt.step()){
+        rows.push(stmt.getAsObject());
+      }
+      stmt.free();
+      renderQueryResult([{columns: rows.length ? Object.keys(rows[0]) : [], values: rows.map(r=>Object.values(r))}]);
+      return rows;
+    }
+  } catch (e) {
+    renderError(e);
+  }
+}
+
+function runExec(sql, params=[]) {
+  ensureDbLoaded();
+  try {
+    if (params.length === 0) {
+      db.run(sql);
+    } else {
+      const stmt = db.prepare(sql);
+      stmt.bind(params);
+      stmt.step();
+      stmt.free();
+    }
+    renderMessage('OK');
+  } catch (e) {
+    renderError(e);
+  }
+}
+
+function renderQueryResult(res) {
+  const main = document.getElementById('mainBody');
+  const out = document.createElement('div');
+  out.className = 'card';
+  if (!res || res.length === 0) {
+    out.innerHTML = '<div class="small muted">(no rows)</div>';
+    main.appendChild(out);
+    return;
+  }
+  // sql.js exec returns array of results; we'll render first result set
+  const r = res[0];
+  const cols = r.columns || [];
+  const values = r.values || [];
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const trh = document.createElement('tr');
+  for (const c of cols) {
+    const th = document.createElement('th'); th.textContent = c; trh.appendChild(th);
+  }
+  thead.appendChild(trh);
+  table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  for (const row of values) {
+    const tr = document.createElement('tr');
+    for (let i=0;i<cols.length;i++){
+      const td = document.createElement('td'); td.textContent = row[i]!==null ? row[i] : 'NULL'; tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  out.appendChild(table);
+  main.appendChild(out);
+}
+
+function renderMessage(msg) {
+  const main = document.getElementById('mainBody');
+  const out = document.createElement('div'); out.className='card';
+  out.innerHTML = '<div><strong>' + msg + '</strong></div>';
+  main.appendChild(out);
+}
+
+function renderError(e){
+  const main = document.getElementById('mainBody');
+  const out = document.createElement('div'); out.className='card';
+  out.innerHTML = '<div style="color:#b00020"><strong>Error:</strong> ' + (e && e.message ? e.message : String(e)) + '</div>';
+  main.appendChild(out);
+}
+
+/* --- Page renderers for each CLI option --- */
+
+function clearMain(){
+  const main = document.getElementById('mainBody');
+  main.innerHTML = '';
+}
+
+function show_all_fields(){
+  clearMain();
+  const main = document.getElementById('mainBody');
+  runSelectAndRender("SELECT fld_fieldkey AS id, fld_farmerkey AS farmer_id, fld_soilkey AS soil_type FROM field ORDER BY fld_fieldkey;");
+}
+
+function crops_by_season(){
+  clearMain();
+  const main = document.getElementById('mainBody');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `
+    <div class="small muted">Enter a season name (e.g. Winter). "Fall" will be converted to "Autumn" to match DB values.</div>
+    <div style="margin-top:8px" class="row">
+      <label>Season name</label>
+      <input id="seasonInput" class="input" placeholder="Winter" />
+      <button id="runSeason" class="btn">Run</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('runSeason').onclick = async ()=>{
+    let sName = document.getElementById('seasonInput').value.trim();
+    if (!sName) { renderError({message:'Please enter a season name.'}); return; }
+    if (sName === 'Fall') sName = 'Autumn';
+    try {
+      // find season key
+      const stmt = db.prepare("SELECT s_seasonkey FROM season WHERE s_name = :n;");
+      stmt.bind({':n': sName});
+      let sid = null;
+      if (stmt.step()){
+        sid = stmt.get()[0];
+      }
+      stmt.free();
+      if (sid === null) { renderError({message: 'Season not found.'}); return; }
+      // query with parameter
+      const sql = `SELECT s.s_name AS season, c.c_name AS crop, COUNT(fc.fldc_fieldkey) as plantings
+                   FROM season s JOIN crop c ON c.c_preferredseason = s.s_seasonkey
+                   LEFT JOIN fieldcrop fc ON fc.fldc_cropkey = c.c_cropkey
+                   WHERE s.s_seasonkey = ? GROUP BY c.c_cropkey;`;
+      // prepare and step
+      const ps = db.prepare(sql);
+      ps.bind([sid]);
+      const rows = [];
+      while(ps.step()){
+        rows.push(ps.getAsObject());
+      }
+      ps.free();
+      if (rows.length === 0) {
+        renderMessage('(no rows)');
+      } else {
+        renderQueryResult([{columns:Object.keys(rows[0]), values: rows.map(r=>Object.values(r))}]);
+      }
+    } catch(e) { renderError(e); }
+  };
+}
+
+function avg_yield_per_field(){
+  clearMain();
+  runSelectAndRender("SELECT fldc_fieldkey AS fieldkey, ROUND(AVG(fldc_yield), 2) AS avg_yield, COUNT(fldc_fieldkey) AS observations FROM fieldcrop GROUP BY fldc_fieldkey ORDER BY fldc_fieldkey;");
+}
+
+function latest_soil_sample_for_field(){
+  clearMain();
+  const main = document.getElementById('mainBody');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `
+    <div class="small muted">Enter field_id to view latest soilsample (view additional stacks: 1 -> 2 -> 3)</div>
+    <div class="row">
+      <label>Field ID</label><input id="fieldIdInput" class="input" placeholder="1" />
+      <button id="runFieldSample" class="btn">Run</button>
+    </div>
+    <div id="sampleControls" style="margin-top:8px"></div>
+  `;
+  main.appendChild(card);
+
+  const sqls = [
+    `SELECT ss_samplekey AS Sample, ss_fieldkey AS Field, ss_sampledate AS Date, ss_sand AS Sand, ss_silt AS Silt, ss_clay AS Clay, ss_ph AS pH, ss_nitrogen_ppm AS N, ss_phosphorus_ppm AS P, ss_potassium_ppm AS K, ss_organicmatter_pct AS "OM%", ss_cec AS CEC FROM soilsample WHERE ss_fieldkey = ? ORDER BY ss_sampledate DESC LIMIT 1;`,
+    `SELECT ss_lead_ppm AS Lead, ss_mercury_ppm AS Mercury, ss_nickel_ppm AS Nickel, ss_copper_ppm AS Copper, ss_chromium_ppm AS Chromium, ss_cadmium_ppm AS Cadmium, ss_arsenic_ppm AS Arsenic, ss_zinc_ppm AS Zinc FROM soilsample WHERE ss_fieldkey = ? ORDER BY ss_sampledate DESC LIMIT 1;`,
+    `SELECT ss_comment AS comment FROM soilsample WHERE ss_fieldkey = ? ORDER BY ss_sampledate DESC LIMIT 1;`
+  ];
+
+  let index = 0;
+  document.getElementById('runFieldSample').onclick = ()=>{
+    const fid = parseInt(document.getElementById('fieldIdInput').value);
+    if (isNaN(fid)) { renderError({message:'Invalid field id'}); return; }
+    // check existence
+    try {
+      const stmt = db.prepare("SELECT 1 FROM field WHERE fld_fieldkey = ? LIMIT 1;");
+      stmt.bind([fid]);
+      const ok = stmt.step();
+      stmt.free();
+      if (!ok) { renderError({message:'Field not found.'}); return; }
+      index = 0;
+      clearMain(); // show output only
+      // run the three queries one by one but provide "View more" similar behavior
+      runOne();
+      function runOne(){
+        const card2 = document.createElement('div'); card2.className='card';
+        const sql = sqls[index];
+        try {
+          const ps = db.prepare(sql);
+          ps.bind([fid]);
+          const rows = [];
+          while(ps.step()){ rows.push(ps.getAsObject()); }
+          ps.free();
+          if (rows.length === 0) {
+            card2.innerHTML = '<div class="small muted">(no sample rows)</div>';
+            document.getElementById('mainBody').appendChild(card2);
+          } else {
+            renderQueryResult([{columns:Object.keys(rows[0]), values: rows.map(r=>Object.values(r))}]);
+          }
+        } catch(e){ renderError(e); }
+        // "View more" prompt
+        const ctrl = document.createElement('div'); ctrl.className='card';
+        const moreBtn = document.createElement('button'); moreBtn.className='btn'; moreBtn.textContent = 'View more (Y)';
+        const doneBtn = document.createElement('button'); doneBtn.className='btn secondary'; doneBtn.textContent = 'Done (N)';
+        ctrl.appendChild(moreBtn); ctrl.appendChild(doneBtn);
+        document.getElementById('mainBody').appendChild(ctrl);
+        moreBtn.onclick = ()=>{
+          index++;
+          if (index < sqls.length) {
+            // remove last two controls and continue
+            clearMain();
+            runOne();
+          } else {
+            renderMessage('(no more)');
+          }
+        };
+        doneBtn.onclick = ()=>{ renderMessage('Done.'); };
+      }
+    } catch(e) { renderError(e); }
+  };
+}
+
+function samples_exceeding_thresholds(){
+  clearMain();
+  const main = document.getElementById('mainBody');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `
+    <div class="small muted">Enter numeric thresholds for lead, cadmium, arsenic (ppm)</div>
+    <div class="row"><label>Lead limit (ppm)</label><input id="leadLimit" class="input" value="100" /></div>
+    <div class="row"><label>Cadmium limit (ppm)</label><input id="cadLimit" class="input" value="0.48" /></div>
+    <div class="row"><label>Arsenic limit (ppm)</label><input id="asLimit" class="input" value="10" /></div>
+    <div style="margin-top:8px"><button id="runThresholds" class="btn">Run</button></div>
+  `;
+  main.appendChild(card);
+
+  document.getElementById('runThresholds').onclick = ()=>{
+    const lead = parseFloat(document.getElementById('leadLimit').value);
+    const cad  = parseFloat(document.getElementById('cadLimit').value);
+    const arsen = parseFloat(document.getElementById('asLimit').value);
+    if (isNaN(lead) || isNaN(cad) || isNaN(arsen)) { renderError({message:'Invalid numeric thresholds'}); return; }
+    const sql = `SELECT ss.ss_samplekey, ss.ss_sampledate, fld.fld_fieldkey, f.f_farmerkey, f.f_name || ' ' || f.f_surname AS farmer_name, ss.ss_lead_ppm, ss.ss_cadmium_ppm, ss.ss_arsenic_ppm
+                 FROM soilsample ss JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+                 WHERE (ss.ss_lead_ppm IS NOT NULL AND ss.ss_lead_ppm > ?) OR (ss.ss_cadmium_ppm IS NOT NULL AND ss.ss_cadmium_ppm > ?) OR (ss.ss_arsenic_ppm IS NOT NULL AND ss.ss_arsenic_ppm > ?)
+                 ORDER BY ss.ss_sampledate DESC;`;
+    // prepared
+    try {
+      const ps = db.prepare(sql);
+      ps.bind([lead,cad,arsen]);
+      const rows = [];
+      while(ps.step()){ rows.push(ps.getAsObject()); }
+      ps.free();
+      if (rows.length===0) renderMessage('(no rows)');
+      else renderQueryResult([{columns:Object.keys(rows[0]), values: rows.map(r=>Object.values(r))}]);
+    } catch(e){ renderError(e); }
+  };
+}
+
+function fields_no_recent_maintenance(){
+  clearMain();
+  const sql = `WITH last_maint AS (
+      SELECT fldm_fieldkey, MAX(fldm_begindate) AS last_begindate
+      FROM fieldmaintenance
+      GROUP BY fldm_fieldkey
+    )
+    SELECT fld.fld_fieldkey AS fieldkey, fld.fld_farmerkey AS farmerkey, TRIM(f.f_name || ' ' || f.f_surname) AS farmer_name, fld.fld_soilkey AS soilkey, lm.last_begindate
+    FROM field fld
+    LEFT JOIN last_maint lm ON fld.fld_fieldkey = lm.fldm_fieldkey
+    LEFT JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+    WHERE lm.last_begindate IS NULL OR lm.last_begindate < date('now', '-3 years')
+    ORDER BY (lm.last_begindate IS NOT NULL), lm.last_begindate;
+  `;
+  runSelectAndRender(sql);
+}
+
+function avg_npk_by_soil_texture(){
+  clearMain();
+  const sql = `SELECT st.st_soil_texture AS soil_texture, COUNT(ss.ss_samplekey) AS sample_count,
+           ROUND(AVG(ss.ss_nitrogen_ppm),2) AS avg_N,
+           ROUND(AVG(ss.ss_phosphorus_ppm),2) AS avg_P,
+           ROUND(AVG(ss.ss_potassium_ppm),2) AS avg_K,
+           ROUND(AVG(ss.ss_cec),2) AS avg_cec
+    FROM soilsample ss
+    JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
+    JOIN soiltype st ON fld.fld_soilkey = st.st_soilkey
+    GROUP BY st.st_soil_texture
+    HAVING COUNT(ss.ss_samplekey) >= 5
+    ORDER BY st.st_soilkey DESC;`;
+  runSelectAndRender(sql);
+}
+
+function total_yield_per_season(){
+  clearMain();
+  const sql = `SELECT s.s_seasonkey, s.s_name, ROUND(SUM(fc.fldc_yield),2) AS total_yield, COUNT(fc.fldc_fieldkey) AS plantings_count
+    FROM season s
+    JOIN crop c ON c.c_preferredseason = s.s_seasonkey
+    JOIN fieldcrop fc ON fc.fldc_cropkey = c.c_cropkey
+    GROUP BY s.s_seasonkey, s.s_name
+    ORDER BY total_yield DESC;`;
+  runSelectAndRender(sql);
+}
+
+function crop_rotation_history(){
+  clearMain();
+  const main = document.getElementById('mainBody');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `
+    <div class="small muted">Enter field_id to view recent rotation</div>
+    <div class="row"><label>Field ID</label><input id="rotField" class="input" /></div>
+    <div><button id="rotRun" class="btn">Run</button></div>
+  `;
+  main.appendChild(card);
+  document.getElementById('rotRun').onclick = ()=>{
+    const fid = parseInt(document.getElementById('rotField').value);
+    if (isNaN(fid)) { renderError({message:'Invalid field id'}); return; }
+    // check existence
+    try {
+      const stmtC = db.prepare("SELECT 1 FROM field WHERE fld_fieldkey = ? LIMIT 1;");
+      stmtC.bind([fid]);
+      if (!stmtC.step()){ renderError({message:'Field not found.'}); stmtC.free(); return; }
+      stmtC.free();
+    } catch(e){ renderError(e); return; }
+
+    const sql = `WITH crop_history AS (
+      SELECT fc.fldc_fieldkey, fc.fldc_cropkey, fc.fldc_enddate,
+             ROW_NUMBER() OVER (PARTITION BY fc.fldc_fieldkey ORDER BY fc.fldc_enddate DESC) AS rn
+      FROM fieldcrop fc
+      WHERE fc.fldc_fieldkey = ?
+    )
+    SELECT current_harvest.fldc_fieldkey, current_harvest.fldc_cropkey AS current_cropkey, previous_harvest.fldc_cropkey AS previous_cropkey,
+           c1.c_name AS current_crop_name, c2.c_name AS previous_crop_name
+    FROM crop_history current_harvest
+    JOIN crop_history previous_harvest ON current_harvest.fldc_fieldkey = previous_harvest.fldc_fieldkey
+    JOIN crop c1 ON current_harvest.fldc_cropkey = c1.c_cropkey
+    JOIN crop c2 ON previous_harvest.fldc_cropkey = c2.c_cropkey
+    WHERE current_harvest.rn = 1 AND previous_harvest.rn = 2 AND current_harvest.fldc_cropkey <> previous_harvest.fldc_cropkey;`;
+    try {
+      const ps = db.prepare(sql);
+      ps.bind([fid]);
+      const rows = [];
+      while(ps.step()) rows.push(ps.getAsObject());
+      ps.free();
+      if (rows.length === 0) renderMessage('(no rotation info found)');
+      else renderQueryResult([{columns:Object.keys(rows[0]), values: rows.map(r=>Object.values(r))}]);
+    } catch(e){ renderError(e); }
+  };
+}
+
+function insert_fieldcrop(){
+  clearMain();
+  const main = document.getElementById('mainBody');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `
+    <h4>Insert new fieldcrop entry</h4>
+    <div class="small muted">All inserts are parameterized and executed in-memory. After inserting, download DB to persist changes.</div>
+    <div class="row"><label>field_id</label><input id="ic_field" class="input" /></div>
+    <div class="row"><label>crop_id</label><input id="ic_crop" class="input" /></div>
+    <div class="row"><label>begin_date (YYYY-MM-DD)</label><input id="ic_begin" class="input" /></div>
+    <div class="row"><label>end_date (YYYY-MM-DD or empty)</label><input id="ic_end" class="input" /></div>
+    <div class="row"><label>yield (>=0)</label><input id="ic_yield" class="input" /></div>
+    <div class="row"><label>unit (text)</label><input id="ic_unit" class="input" /></div>
+    <div style="margin-top:8px"><button id="ic_run" class="btn">Insert</button></div>
+  `;
+  main.appendChild(card);
+
+  document.getElementById('ic_run').onclick = ()=>{
+    const field_id = parseInt(document.getElementById('ic_field').value);
+    const crop_id  = parseInt(document.getElementById('ic_crop').value);
+    const bdate    = document.getElementById('ic_begin').value.trim();
+    const edate    = document.getElementById('ic_end').value.trim();
+    const yieldVal = parseFloat(document.getElementById('ic_yield').value);
+    const unit     = document.getElementById('ic_unit').value.trim();
+
+    if (isNaN(field_id) || isNaN(crop_id)) { renderError({message:'field_id and crop_id must be numbers'}); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(bdate)) { renderError({message:'begin_date must be YYYY-MM-DD'}); return; }
+    if (edate!=='' && !/^\d{4}-\d{2}-\d{2}$/.test(edate)) { renderError({message:'end_date must be YYYY-MM-DD or empty'}); return; }
+    if (isNaN(yieldVal) || yieldVal < 0) { renderError({message:'yield must be a non-negative number'}); return; }
+
+    // check field and crop exist
+    try {
+      const ch1 = db.prepare("SELECT 1 FROM field WHERE fld_fieldkey = ? LIMIT 1;"); ch1.bind([field_id]); const fexists = ch1.step(); ch1.free();
+      if (!fexists) { renderError({message:'Field id not found.'}); return; }
+      const ch2 = db.prepare("SELECT 1 FROM crop WHERE c_cropkey = ? LIMIT 1;"); ch2.bind([crop_id]); const cexists = ch2.step(); ch2.free();
+      if (!cexists) { renderError({message:'Crop id not found.'}); return; }
+      const sql = "INSERT INTO fieldcrop (fldc_fieldkey, fldc_cropkey, fldc_begindate, fldc_enddate, fldc_yield, fldc_yield_unit) VALUES (?, ?, ?, ?, ?, ?);";
+      const ps = db.prepare(sql);
+      // bind values; null for empty end date
+      ps.bind([field_id, crop_id, bdate, edate === '' ? null : edate, yieldVal, unit]);
+      ps.step();
+      ps.free();
+      renderMessage('Inserted fieldcrop row successfully.');
+      enableDownload();
+    } catch(e){ renderError(e); }
+  };
+}
+
+function insert_soilsample(){
+  clearMain();
+  const main = document.getElementById('mainBody');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `
+    <h4>Insert new soilsample entry</h4>
+    <div class="small muted">field_id, sample_date (YYYY-MM-DD), ph (3.0-9.0), nitrogen_ppm >=0, phosphorus_ppm >=0, potassium_ppm >=0, organic_matter_pct >=0</div>
+    <div class="row"><label>field_id</label><input id="is_field" class="input" /></div>
+    <div class="row"><label>sample_date</label><input id="is_date" class="input" placeholder="YYYY-MM-DD" /></div>
+    <div class="row"><label>ph</label><input id="is_ph" class="input" /></div>
+    <div class="row"><label>nitrogen_ppm</label><input id="is_n" class="input" /></div>
+    <div class="row"><label>phosphorus_ppm</label><input id="is_p" class="input" /></div>
+    <div class="row"><label>potassium_ppm</label><input id="is_k" class="input" /></div>
+    <div class="row"><label>organic_matter_pct</label><input id="is_om" class="input" /></div>
+    <div style="margin-top:8px"><button id="is_run" class="btn">Insert</button></div>
+  `;
+  main.appendChild(card);
+
+  document.getElementById('is_run').onclick = ()=>{
+    const field_id = parseInt(document.getElementById('is_field').value);
+    const sdate = document.getElementById('is_date').value.trim();
+    const ph = parseFloat(document.getElementById('is_ph').value);
+    const nppm = parseFloat(document.getElementById('is_n').value);
+    const pppm = parseFloat(document.getElementById('is_p').value);
+    const kppm = parseFloat(document.getElementById('is_k').value);
+    const om = parseFloat(document.getElementById('is_om').value);
+
+    if (isNaN(field_id)){ renderError({message:'Invalid field id'}); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(sdate)){ renderError({message:'Invalid date format'}); return; }
+    if (isNaN(ph) || ph<3.0 || ph>9.0){ renderError({message:'ph out of expected range (3.0 - 9.0)'}); return; }
+    if ([nppm,pppm,kppm,om].some(v => isNaN(v) || v < 0)){ renderError({message:'NPK and organic matter must be >= 0'}); return; }
+
+    try {
+      const ch = db.prepare("SELECT 1 FROM field WHERE fld_fieldkey = ? LIMIT 1;"); ch.bind([field_id]); if (!ch.step()){ ch.free(); renderError({message:'Field id not found.'}); return; } ch.free();
+      const sql = `INSERT INTO soilsample (ss_fieldkey, ss_sampledate, ss_ph, ss_nitrogen_ppm, ss_phosphorus_ppm, ss_potassium_ppm, ss_organicmatter_pct)
+                   VALUES (?, ?, ?, ?, ?, ?, ?);`;
+      const ps = db.prepare(sql);
+      ps.bind([field_id, sdate, ph, nppm, pppm, kppm, om]);
+      ps.step();
+      ps.free();
+      renderMessage('Inserted soilsample row successfully.');
+      enableDownload();
+    } catch(e){ renderError(e); }
+  };
+}
+
+/* --- Wiring / DB loading / helpers --- */
+
+function showPageFor(fnName){
+  const fn = window[fnName];
+  if (typeof fn === 'function') fn();
+  else { clearMain(); renderError({message:'Page not implemented: ' + fnName}); }
+}
+
+async function loadSqlJs(){
+  if (SQL) return SQL;
+  // eslint-disable-next-line no-undef
+  SQL = await initSqlJs({locateFile: fileName => "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/" + fileName});
+  return SQL;
+}
+
+async function tryAutoloadDb(){
+  // attempt to fetch /database/aims.sqlite
+  try {
+    setStatus('Loading /database/aims.sqlite ...');
+    const r = await fetch('/database/aims.sqlite');
+    if (!r.ok) throw new Error('Could not fetch /database/aims.sqlite: ' + r.status);
+    const ab = await r.arrayBuffer();
+    dbUint8Array = new Uint8Array(ab);
+    await loadDatabaseFromUint8Array(dbUint8Array);
+    setStatus('Loaded /database/aims.sqlite');
+  } catch (e){
+    setStatus('Auto-load failed: ' + e.message, false);
+    renderMessage('Auto-load failed. You can upload the file using "Upload file". Error: ' + e.message);
+  }
+}
+
+async function loadDatabaseFromUint8Array(u8){
+  await loadSqlJs();
+  try {
+    db = new SQL.Database(u8);
+    enableDownload();
+    document.getElementById('downloadDbBtn').disabled = false;
+    document.getElementById('dbStatus').textContent = 'DB loaded (in-memory)';
+  } catch (e){
+    renderError(e);
+  }
+}
+
+function enableDownload(){
+  document.getElementById('downloadDbBtn').disabled = false;
+}
+
+document.getElementById('tryAutoLoad').addEventListener('click', tryAutoloadDb);
+
+document.getElementById('filePicker').addEventListener('change', async (ev)=>{
+  const f = ev.target.files[0];
+  if (!f) return;
+  const ab = await f.arrayBuffer();
+  dbUint8Array = new Uint8Array(ab);
+  await loadDatabaseFromUint8Array(dbUint8Array);
+  setStatus('Loaded from uploaded file: ' + f.name);
+});
+
+document.getElementById('downloadDbBtn').addEventListener('click', ()=>{
+  if (!db) { renderError({message:'No DB loaded'}); return; }
+  try {
+    const binary = db.export();
+    const blob = new Blob([binary], {type:'application/octet-stream'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'aims_modified.sqlite';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  } catch(e){ renderError(e); }
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  // reset UI (db remains loaded)
+  clearMain();
+  document.getElementById('pageTitle').textContent = 'Menu';
+  document.getElementById('pageSub').textContent = 'Choose an operation from the left';
+  for (const it of MENU_ITEMS){
+    const btn = document.getElementById('menu_'+it.id);
+    if (btn) btn.classList.remove('active');
+  }
+});
+
+/* initialize UI */
+renderMenu();
+
+// try auto-load once on open (non-blocking)
+(async ()=>{ try { await tryAutoloadDb(); } catch(e){} })();
+
+</script>
+</body>
+</html>
