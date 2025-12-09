@@ -173,6 +173,7 @@ void crops_by_season(DB &db) {
     // cout << "Enter season_id: ";
     // int sid; cin >> sid; cin.ignore();
 
+    cout << endl;
     cout << "Enter season name (e.g. Winter): ";
     string sName;
     getline(cin, sName);
@@ -313,6 +314,7 @@ void latest_soil_sample_for_field(DB &db) {
 
         if (in == "Y" || in == "y" || in == "" || !in.empty()){
             ++index;
+            cout << endl;
             goto begin;
         } else if (in == "N" || in == "n"){
             goto skip_prompt_cont;
@@ -326,6 +328,7 @@ void latest_soil_sample_for_field(DB &db) {
 }
 
 void samples_exceeding_thresholds(DB &db) {
+    cout << endl;
     cout << "Enter lead_limit (ppm) [example 100]: "; double lead; cin >> lead;
     cout << "Enter cadmium_limit (ppm) [example 0.48]: "; double cad; cin >> cad;
     cout << "Enter arsenic_limit (ppm) [example 10]: "; double as; cin >> as;
@@ -373,15 +376,17 @@ void fields_no_recent_maintenance(DB &db) {
     ORDER BY (lm.last_begindate IS NOT NULL), lm.last_begindate;
     )";
     db.run_and_print(sql);
+
+    promptContinue();
 }
 
 void avg_npk_by_soil_texture(DB &db) {
     cout << "\n-- Avg NPK by soil texture (requires >=5 samples) --\n";
     string sql = R"(
     SELECT st.st_soil_texture AS soil_texture, COUNT(ss.ss_samplekey) AS sample_count,
-           ROUND(AVG(ss.ss_nitrogen_ppm),2) AS avg_nitrogen_ppm,
-           ROUND(AVG(ss.ss_phosphorus_ppm),2) AS avg_phosphorus_ppm,
-           ROUND(AVG(ss.ss_potassium_ppm),2) AS avg_potassium_ppm,
+           ROUND(AVG(ss.ss_nitrogen_ppm),2) AS avg_N,
+           ROUND(AVG(ss.ss_phosphorus_ppm),2) AS avg_P,
+           ROUND(AVG(ss.ss_potassium_ppm),2) AS avg_K,
            ROUND(AVG(ss.ss_cec),2) AS avg_cec
     FROM soilsample ss
     JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
@@ -409,6 +414,7 @@ void total_yield_per_season(DB &db) {
 }
 
 void crop_rotation_history(DB &db) {
+    cout << endl;
     cout << "Enter field_id to view recent rotation: ";
     int fid; cin >> fid; cin.ignore();
     if (!db.id_exists("field", "fld_fieldkey", fid)) { cout << "Field not found.\n"; return; }
@@ -450,6 +456,7 @@ void crop_rotation_history(DB &db) {
 // ---------- Insert operations (safe, parameterized) ----------
 
 void insert_fieldcrop(DB &db) {
+    cout << endl;
     cout << "Inserting new fieldcrop entry.\n";
     int field_id, crop_id;
     string bdate, edate;
