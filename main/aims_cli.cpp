@@ -190,7 +190,31 @@ void latest_soil_sample_for_field(DB &db) {
     cout << "Enter field_id: ";
     int fid; cin >> fid; cin.ignore();
     if (!db.id_exists("field", "fld_fieldkey", fid)) { cout << "Field not found.\n"; return; }
-    string sql = "SELECT * FROM soilsample WHERE ss_fieldkey = ? ORDER BY ss_sampledate DESC LIMIT 1;";
+    string sql = R"(SELECT 
+                        ss_samplekey AS Sample,
+                        ss_fieldkey AS Field,
+                        ss_sampledate AS Date,
+                        ss_sand AS Sand,
+                        ss_silt AS Silt,
+                        ss_clay AS Clay,
+                        ss_ph AS pH,
+                        ss_nitrogen_ppm AS N,
+                        ss_phosphorus_ppm AS P,
+                        ss_potassium_ppm AS K,
+                        ss_organicmatter_pct AS "OM%",
+                        ss_cec AS CEC,
+                        ss_lead_ppm AS Lead,
+                        ss_mercury_ppm AS Mercury,
+                        ss_nickel_ppm AS Nickel,
+                        ss_copper_ppm AS Copper,
+                        ss_chromium_ppm AS Chromium,
+                        ss_cadmium_ppm AS Cadmium,
+                        ss_arsenic_ppm AS Arsenic,
+                        ss_zinc_ppm AS Zinc,
+                        ss_comment AS Comment 
+                    FROM soilsample 
+                    WHERE ss_fieldkey = ? 
+                    ORDER BY ss_sampledate DESC LIMIT 1;)";
     sqlite3_stmt* stmt;
     if (sqlite3_prepare_v2(db.db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) { cout << "Prepare error\n"; return; }
     sqlite3_bind_int(stmt, 1, fid);
