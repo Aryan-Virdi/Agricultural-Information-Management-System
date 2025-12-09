@@ -66,7 +66,7 @@ void print_table_header(sqlite3_stmt* stmt) {
         cout << std::left << std::setw(18) << sqlite3_column_name(stmt, i);
     }
     cout << "\n";
-    for (int i = 0; i < cols; ++i) cout << std::setw(18) << std::string(18, '-');
+    for (int i = 0; i < cols; ++i) cout << std::setw(18) << std::string(14, '-');
     cout << "\n";
 }
 
@@ -239,10 +239,14 @@ void avg_yield_per_field(DB &db) {
 }
 
 void latest_soil_sample_for_field(DB &db) {
+    cout << endl;
+
     cout << "Enter field_id: ";
     int fid; cin >> fid; cin.ignore();
     if (!db.id_exists("field", "fld_fieldkey", fid)) { cout << "Field not found.\n"; return; }
-    string sql = R"(SELECT 
+    int index = 1;
+
+    string sql1 = R"(SELECT 
                         ss_samplekey AS Sample,
                         ss_fieldkey AS Field,
                         ss_sampledate AS Date,
@@ -254,7 +258,12 @@ void latest_soil_sample_for_field(DB &db) {
                         ss_phosphorus_ppm AS P,
                         ss_potassium_ppm AS K,
                         ss_organicmatter_pct AS "OM%",
-                        ss_cec AS CEC,
+                        ss_cec AS CEC
+                    FROM soilsample 
+                    WHERE ss_fieldkey = ? 
+                    ORDER BY ss_sampledate DESC LIMIT 1;)";
+
+    string sql2 = R"(SELECT 
                         ss_lead_ppm AS Lead,
                         ss_mercury_ppm AS Mercury,
                         ss_nickel_ppm AS Nickel,
@@ -262,13 +271,27 @@ void latest_soil_sample_for_field(DB &db) {
                         ss_chromium_ppm AS Chromium,
                         ss_cadmium_ppm AS Cadmium,
                         ss_arsenic_ppm AS Arsenic,
-                        ss_zinc_ppm AS Zinc,
-                        ss_comment AS Comment 
+                        ss_zinc_ppm AS Zinc
                     FROM soilsample 
                     WHERE ss_fieldkey = ? 
                     ORDER BY ss_sampledate DESC LIMIT 1;)";
+
+    string sql3 = R"(SELECT 
+                        ss_comment AS comment
+                    FROM soilsample 
+                    WHERE ss_fieldkey = ? 
+                    ORDER BY ss_sampledate DESC LIMIT 1;)";
+
+    begin:
+    string query;
+    if (index == 1){
+        query = sql1;
+    } else if (index == 2){
+        query = sql2;
+    } else query = sql3;
+
     sqlite3_stmt* stmt;
-    if (sqlite3_prepare_v2(db.db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) { cout << "Prepare error\n"; return; }
+    if (sqlite3_prepare_v2(db.db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK) { cout << "Prepare error\n"; return; }
     sqlite3_bind_int(stmt, 1, fid);
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         print_table_header(stmt);
@@ -281,7 +304,25 @@ void latest_soil_sample_for_field(DB &db) {
         cout << "\n";
     } else cout << "(no sample rows)\n";
     sqlite3_finalize(stmt);
+
+    while(index < 3){
+        string in;
+        cout << endl;
+        cout << "View more? (Y/N): ";
+        cin >> in;
+
+        if (in == "Y" || in == "y" || in == "" || !in.empty()){
+            ++index;
+            goto begin;
+        } else if (in == "N" || in == "n"){
+            goto skip_prompt_cont;
+        }
+    }
+
+    cin.ignore();
+
     promptContinue();
+    skip_prompt_cont:
 }
 
 void samples_exceeding_thresholds(DB &db) {
