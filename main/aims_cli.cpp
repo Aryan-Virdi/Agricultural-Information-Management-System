@@ -71,6 +71,18 @@ static int print_generic_callback(void *NotUsed, int argc, char **argv, char **a
     return 0;
 }
 
+void promptContinue(){
+    cout << endl;
+    while (true) {
+        string input;
+        cout << "Enter anything to continue (or just Ctrl+C to quit): ";
+        getline(cin, input);
+        if (!input.empty() || input == "") {
+            break;
+        }
+    }
+}
+
 // ---------- DB wrapper ----------
 struct DB {
     sqlite3* db = nullptr;
@@ -146,6 +158,7 @@ struct DB {
 void show_all_fields(DB &db) {
     cout << "\n-- All fields --\n";
     db.run_and_print("SELECT fld_fieldkey AS id, fld_farmerkey AS farmer_id, fld_soilkey AS soil_type FROM field ORDER BY fld_fieldkey;");
+    promptContinue();
 }
 
 void crops_by_season(DB &db) {
@@ -206,6 +219,7 @@ void crops_by_season(DB &db) {
     }
     sqlite3_finalize(stmt);
     if (!printed) cout << "(no rows)\n";
+    promptContinue();
 }
 
 void avg_yield_per_field(DB &db) {
@@ -213,6 +227,7 @@ void avg_yield_per_field(DB &db) {
     string sql = "SELECT fldc_fieldkey AS fieldkey, ROUND(AVG(fldc_yield), 2) AS avg_yield, COUNT(fldc_fieldkey) AS observations "
                  "FROM fieldcrop GROUP BY fldc_fieldkey ORDER BY fldc_fieldkey;";
     db.run_and_print(sql);
+    promptContinue();
 }
 
 void latest_soil_sample_for_field(DB &db) {
@@ -258,6 +273,7 @@ void latest_soil_sample_for_field(DB &db) {
         cout << "\n";
     } else cout << "(no sample rows)\n";
     sqlite3_finalize(stmt);
+    promptContinue();
 }
 
 void samples_exceeding_thresholds(DB &db) {
@@ -289,6 +305,7 @@ void samples_exceeding_thresholds(DB &db) {
     }
     sqlite3_finalize(stmt);
     if (!printed) cout << "(no rows)\n";
+    promptContinue();
 }
 
 void fields_no_recent_maintenance(DB &db) {
@@ -325,6 +342,7 @@ void avg_npk_by_soil_texture(DB &db) {
     ORDER BY st.st_soilkey DESC;
     )";
     db.run_and_print(sql);
+    promptContinue();
 }
 
 void total_yield_per_season(DB &db) {
@@ -338,6 +356,7 @@ void total_yield_per_season(DB &db) {
     ORDER BY total_yield DESC;
     )";
     db.run_and_print(sql);
+    promptContinue();
 }
 
 void crop_rotation_history(DB &db) {
@@ -376,6 +395,7 @@ void crop_rotation_history(DB &db) {
     }
     sqlite3_finalize(stmt);
     if (!printed) cout << "(no rotation info found)\n";
+    promptContinue();
 }
 
 // ---------- Insert operations (safe, parameterized) ----------
@@ -411,6 +431,7 @@ void insert_fieldcrop(DB &db) {
         cout << "Insert failed: " << sqlite3_errmsg(db.db) << "\n";
     } else cout << "Inserted fieldcrop row successfully.\n";
     sqlite3_finalize(stmt);
+    promptContinue();
 }
 
 void insert_soilsample(DB &db) {
@@ -450,6 +471,7 @@ void insert_soilsample(DB &db) {
         cout << "Insert failed: " << sqlite3_errmsg(db.db) << "\n";
     } else cout << "Inserted soilsample row successfully.\n";
     sqlite3_finalize(stmt);
+    promptContinue();
 }
 
 // ---------- Main menu ----------
@@ -469,6 +491,7 @@ void show_menu() {
     cout << "0) Exit\n";
     cout << "Choose option: ";
 }
+
 
 int main(int argc, char** argv) {
     if (argc < 2) {
