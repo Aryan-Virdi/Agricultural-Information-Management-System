@@ -118,8 +118,8 @@
   <div class="content">
     <div class="toolbar">
       <div style="flex:1">
-        <h2 id="pageTitle">Menu</h2>
-        <div class="small muted" id="pageSub">Choose an operation from the left</div>
+        <h2 id="pageTitle">Welcome!</h2>
+        <div class="small muted" id="pageSub">This web UI allows you to interact with AIMS. The UI runs the SQLite database in-memory using <strong>sql.js</strong>. Inserts update the in-memory DB; you may download it afterwards.</div>
       </div>
       <div class="controls">
         <button id="tryAutoLoad" class="btn secondary">Try auto-load DB</button>
@@ -128,8 +128,8 @@
 
     <div id="mainBody">
       <div class="card">
-        <h3>Welcome</h3>
-        <p class="small muted">This web UI reproduces the CLI menu you provided. Click any menu item to run queries or insert data. The UI runs the SQLite database in-memory using <strong>sql.js</strong>. Inserts update the in-memory DB; you may download it afterwards.</p>
+        <h3>Menu</h3>
+        <p class="small muted">Choose an operation from the left. Some are interactive!</p>
       </div>
     </div>
   </div>
@@ -722,8 +722,8 @@ document.getElementById('downloadDbBtn').addEventListener('click', ()=>{
 document.getElementById('resetBtn').addEventListener('click', ()=>{
   // reset UI (db remains loaded)
   clearMain();
-  document.getElementById('pageTitle').textContent = 'Menu';
-  document.getElementById('pageSub').textContent = 'Choose an operation from the left';
+  document.getElementById('pageTitle').textContent = 'Welcome!';
+  document.getElementById('pageSub').textContent = 'This web UI allows you to interact with AIMS. The UI runs the SQLite database in-memory using <strong>sql.js</strong>. Inserts update the in-memory DB; you may download it afterwards.';
   for (const it of MENU_ITEMS){
     const btn = document.getElementById('menu_'+it.id);
     if (btn) btn.classList.remove('active');
