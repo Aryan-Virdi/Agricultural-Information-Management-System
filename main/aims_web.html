@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AIMS — Web UI</title>
+
+<!-- Simple Google-like theme -->
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --accent:#1a73e8; /* Google blue */
+    --accent-2:#185abc;
+    --muted:#5f6368;
+    --success:#0f9d58;
+    --danger:#d93025;
+    --shadow: 0 6px 18px rgba(32,33,36,0.08);
+    font-family: "Google Sans", Roboto, Arial, sans-serif;
+  }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:#202124;
+  }
+  .topbar{
+    height:64px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:0 20px;
+    background:linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9));
+    box-shadow: 0 1px 0 rgba(60,64,67,0.1);
+    position:sticky;top:0;z-index:50;
+  }
+  .brand{
+    display:flex;align-items:center;gap:12px;font-weight:600;
+  }
+  .logo{
+    width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;color:white;font-weight:700;
+    box-shadow: var(--shadow);
+  }
+  .container{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:20px;
+    max-width:1200px;
+    margin:22px auto;
+    padding:0 16px;
+  }
+
+  /* Sidebar */
+  .sidebar{
+    position:relative;
+  }
+  .card{
+    background:var(--card);
+    border-radius:12px;
+    padding:14px;
+    box-shadow: var(--shadow);
+  }
+  .menu{
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .menu button{
+    display:flex;gap:10px;align-items:center;padding:10px;border-radius:8px;border:0;background:transparent;text-align:left;
+    cursor:pointer;color:var(--muted);font-weight:500;
+  }
+  .menu button:hover{background:rgba(26,115,232,0.06);color:var(--accent-2);}
+  .menu button.active{background:rgba(26,115,232,0.12);color:var(--accent-2);}
+
+  /* main */
+  main {
+    min-height:70vh;
+  }
+  h2{margin:0 0 8px 0;font-size:18px}
+  p.muted{color:var(--muted);margin-top:0;font-size:13px}
+
+  /* query results */
+  .table-wrap{overflow:auto;border-radius:8px;}
+  table{width:100%;border-collapse:collapse;background:var(--card)}
+  th,td{padding:10px 12px;border-bottom:1px solid rgba(60,64,67,0.06);text-align:left;font-size:13px}
+  th{background:linear-gradient(180deg, rgba(255,255,255,0.75), rgba(250,250,250,0.75));font-weight:600}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 16px 0}
+
+  input[type="number"], input[type="text"], select {
+    padding:8px 10px;border-radius:8px;border:1px solid rgba(60,64,67,0.12);min-width:160px;
+  }
+  .btn{
+    background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:600;
+    box-shadow: 0 6px 12px rgba(26,115,232,0.12);
+  }
+  .btn.secondary{background:#e8f0fe;color:var(--accent-2);box-shadow:none;font-weight:600}
+  .row{display:flex;gap:12px;align-items:center}
+  label{font-size:13px;color:var(--muted);margin-right:6px}
+
+  /* small screens */
+  @media (max-width:900px){
+    .container{grid-template-columns:1fr; padding-bottom:40px;}
+    .sidebar{order:2}
+  }
+
+  .notice{padding:10px;border-radius:8px;background:#fff8e1;border:1px solid rgba(0,0,0,0.03);font-size:13px}
+  .muted-small{color:var(--muted);font-size:12px}
+  .success{color:var(--success);}
+  .danger{color:var(--danger);}
+
+  footer{max-width:1200px;margin:20px auto;padding:10px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="logo">A</div>
+    <div>
+      <div style="font-size:16px">AIMS — Web UI</div>
+      <div style="font-size:12px;color:var(--muted)">SQLite viewer & editor — client-side</div>
+    </div>
+  </div>
+
+  <div style="margin-left:auto;display:flex;gap:12px;align-items:center">
+    <input id="dbfile" type="file" accept=".sqlite,.db" />
+    <button class="btn" id="downloadBtn" title="Download DB" disabled>Download DB</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Sidebar menu -->
+  <aside class="sidebar">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <strong>Actions</strong>
+          <div class="muted-small">Run queries or insert data</div>
+        </div>
+      </div>
+
+      <div class="menu" id="menu">
+        <button data-action="show_all_fields" class="active">1) Show all fields</button>
+        <button data-action="crops_by_season">2) View crops by season</button>
+        <button data-action="avg_yield_per_field">3) Avg yield per field</button>
+        <button data-action="latest_soil_sample_for_field">4) Latest soil sample for field</button>
+        <button data-action="samples_exceeding_thresholds">5) Samples exceeding thresholds</button>
+        <button data-action="fields_no_recent_maintenance">6) Fields with no recent maintenance</button>
+        <button data-action="avg_npk_by_soil_texture">7) Avg NPK by soil texture</button>
+        <button data-action="total_yield_per_season">8) Total yield per season</button>
+        <button data-action="crop_rotation_history">9) Crop rotation history</button>
+        <button data-action="insert_fieldcrop">10) Insert new fieldcrop</button>
+        <button data-action="insert_soilsample">11) Insert new soilsample</button>
+      </div>
+    </div>
+
+    <div style="height:14px"></div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <strong>Database</strong>
+          <div class="muted-small" id="dbName">No DB loaded</div>
+        </div>
+      </div>
+      <div style="margin-top:10px" id="tablesList"></div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main>
+    <div class="card" id="contentCard">
+      <h2 id="title">Show all fields</h2>
+      <p class="muted" id="subtitle">Run queries against your uploaded AIMS database.</p>
+
+      <div id="controls" class="controls">
+        <!-- Controls are injected dynamically -->
+      </div>
+
+      <div id="result" class="table-wrap" style="margin-top:12px">
+        <div class="notice" id="notice">Upload an <code>aims.sqlite</code> file then choose an action. All work is client-side.</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer>Built from your C++ AIMS CLI — queries, inserts, and downloads implemented client-side with sql.js</footer>
+
+<!-- sql.js (SQLite compiled to WASM). We load the library and then instantiate it.
+     This uses the sql.js bundle from jsDeliver / CDN. If offline, download the sql.js distribution
+     and change the script src and locateFile accordingly.
+-->
+<script>
+  // NOTE: this file expects the sql.js worker files to be reachable.
+  // We'll load sql.js from CDN (jsDelivr) with locateFile redirect for the .wasm file.
+  // If CDN changes, replace urls with your local copies.
+  (function(){
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js";
+    script.onload = initApp;
+    document.head.appendChild(script);
+  })();
+</script>
+
+<script>
+/* main app logic */
+let SQL = null;
+let db = null;            // sql.js Database instance
+let dbFileName = null;
+let dbUint8Array = null;
+
+async function initApp() {
+  // configure locateFile so wasm file is fetched from same CDN
+  window.initSqlJs && await window.initSqlJs({
+    locateFile: file => "https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/" + file
+  }).then((SQLLib) => {
+    SQL = SQLLib;
+    setupUI();
+  }).catch(err => {
+    showNotice("Failed to load sql.js: " + err, true);
+    console.error(err);
+  });
+}
+
+function setupUI() {
+  const fileInput = document.getElementById('dbfile');
+  fileInput.addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    dbFileName = f.name;
+    const ab = await f.arrayBuffer();
+    dbUint8Array = new Uint8Array(ab);
+    try {
+      db = new SQL.Database(dbUint8Array);
+      document.getElementById('dbName').textContent = dbFileName;
+      document.getElementById('downloadBtn').disabled = false;
+      populateTablesList();
+      showNotice("Database loaded: " + dbFileName, false);
+      // auto-run default view
+      runAction('show_all_fields');
+    } catch (err) {
+      showNotice("Error opening DB: " + err, true);
+      console.error(err);
+    }
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    if (!db) return;
+    const data = db.export();
+    const blob = new Blob([data], {type: 'application/x-sqlite3'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = dbFileName || 'aims-modified.sqlite';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // menu buttons
+  document.querySelectorAll('#menu button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#menu button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      runAction(btn.dataset.action);
+    });
+  });
+}
+
+/* UI helpers */
+function showNotice(text, isError=false){
+  const r = document.getElementById('result');
+  r.innerHTML = `<div class="notice ${isError?'danger':''}">${escapeHtml(text)}</div>`;
+}
+
+function escapeHtml(str){
+  if (!str) return '';
+  return str.toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function populateTablesList(){
+  if (!db) return;
+  try {
+    const res = db.exec("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;");
+    const container = document.getElementById('tablesList');
+    if (!res || !res[0]) { container.innerHTML = '<div class="muted-small">No tables found</div>'; return; }
+    const names = res[0].values.map(r=>r[0]);
+    container.innerHTML = '<div class="muted-small">Tables: ' + names.join(', ') + '</div>';
+  } catch (e) {
+    console.warn(e);
+  }
+}
+
+function setTitle(title, subtitle='') {
+  document.getElementById('title').textContent = title;
+  document.getElementById('subtitle').textContent = subtitle || 'Run queries against your uploaded AIMS database.';
+}
+
+/* core: run SQL and render results as table */
+function runAndRender(sql, params=[]) {
+  if (!db) { showNotice('No DB loaded', true); return; }
+  try {
+    const stmt = db.prepare(sql);
+    // bind params if present (sql.js supports named or positional)
+    if (params && params.length) {
+      for (let i=0;i<params.length;i++){
+        stmt.bind({[i+1]: params[i]}); // positional binding 1-based
+      }
+    }
+    const rows = [];
+    while (stmt.step()) {
+      const row = stmt.getAsObject();
+      rows.push(row);
+    }
+    stmt.free();
+    renderTableFromRows(rows);
+  } catch (err) {
+    showNotice("Query error: " + err, true);
+    console.error(err);
+  }
+}
+
+function renderTableFromRows(rows) {
+  const container = document.getElementById('result');
+  if (!rows || rows.length === 0) {
+    container.innerHTML = '<div class="notice">(no rows)</div>';
+    return;
+  }
+  // build header from keys of first row
+  const keys = Object.keys(rows[0]);
+  let html = '<table><thead><tr>';
+  for (const k of keys) html += `<th>${escapeHtml(k)}</th>`;
+  html += '</tr></thead><tbody>';
+  for (const r of rows){
+    html += '<tr>';
+    for (const k of keys) {
+      let v = r[k];
+      if (v === null || typeof v === 'undefined') v = 'NULL';
+      html += `<td>${escapeHtml(v)}</td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+/* specialized render for queries that need header printed before stepping,
+   (we rely on runAndRender; some queries with COUNT may return rows fine) */
+
+/* Action implementations (translate your C++ functions) */
+function runAction(name) {
+  const controls = document.getElementById('controls');
+  controls.innerHTML = '';
+  document.getElementById('result').innerHTML = '';
+  switch (name) {
+    case 'show_all_fields':
+      setTitle('Show all fields','List of all fields');
+      controls.innerHTML = '<div class="muted-small">Click Run to list fields</div><div style="margin-left:auto"><button class="btn" id="runBtn">Run</button></div>';
+      document.getElementById('runBtn').onclick = ()=> {
+        runAndRender("SELECT fld_fieldkey AS id, fld_farmerkey AS farmer_id, fld_soilkey AS soil_type FROM field ORDER BY fld_fieldkey;");
+      };
+      break;
+
+    case 'crops_by_season':
+      setTitle('Crops by season','Choose a season to view crops and plantings count');
+      // populate season dropdown from DB
+      let seasons = [];
+      try {
+        const res = db.exec("SELECT s_seasonkey, s_name FROM season ORDER BY s_seasonkey;");
+        if (res && res[0]) seasons = res[0].values;
+      } catch(e) { console.warn(e); }
+      const options = seasons.length ? seasons.map(r=>`<option value="${r[0]}">${escapeHtml(r[1])} (${r[0]})</option>`).join('') : '<option value="">(no seasons found)</option>';
+      controls.innerHTML = `
+        <div class="row">
+          <label>Season</label>
+          <select id="seasonSel">${options}</select>
+          <button class="btn" id="runCrops">Run</button>
+        </div>
+      `;
+      document.getElementById('runCrops').onclick = () => {
+        const sid = document.getElementById('seasonSel').value;
+        if (!sid) { showNotice('Please pick a season', true); return; }
+        const sql = `SELECT s.s_name AS season, c.c_name AS crop, COUNT(fc.fldc_fieldkey) as plantings
+                     FROM season s JOIN crop c ON c.c_preferredseason = s.s_seasonkey
+                     LEFT JOIN fieldcrop fc ON fc.fldc_cropkey = c.c_cropkey
+                     WHERE s.s_seasonkey = ${sid}
+                     GROUP BY c.c_cropkey;`;
+        runAndRender(sql);
+      };
+      break;
+
+    case 'avg_yield_per_field':
+      setTitle('Avg yield per field','Average yield and observation count per field');
+      controls.innerHTML = `<button class="btn" id="runAvg">Run</button>`;
+      document.getElementById('runAvg').onclick = () => {
+        const sql = `SELECT fldc_fieldkey AS fieldkey, ROUND(AVG(fldc_yield), 2) AS avg_yield, COUNT(fldc_fieldkey) AS observations
+                     FROM fieldcrop GROUP BY fldc_fieldkey ORDER BY fldc_fieldkey;`;
+        runAndRender(sql);
+      };
+      break;
+
+    case 'latest_soil_sample_for_field':
+      setTitle('Latest soil sample for field','Choose a field to view its latest soil sample');
+      // populate fields
+      let fields = [];
+      try {
+        const res = db.exec("SELECT fld_fieldkey FROM field ORDER BY fld_fieldkey;");
+        if (res && res[0]) fields = res[0].values.map(r => r[0]);
+      } catch(e){}
+      const fopts = fields.length ? fields.map(f=>`<option value="${f}">${f}</option>`).join('') : '<option value="">(no fields)</option>';
+      controls.innerHTML = `<div class="row"><label>Field</label><select id="fieldSel">${fopts}</select><button class="btn" id="runLatest">Run</button></div>`;
+      document.getElementById('runLatest').onclick = ()=> {
+        const fid = document.getElementById('fieldSel').value;
+        if (!fid) { showNotice('Pick a field', true); return; }
+        const sql = `SELECT * FROM soilsample WHERE ss_fieldkey = ${fid} ORDER BY ss_sampledate DESC LIMIT 1;`;
+        runAndRender(sql);
+      };
+      break;
+
+    case 'samples_exceeding_thresholds':
+      setTitle('Samples exceeding thresholds','Provide lead, cadmium, arsenic thresholds (ppm)');
+      controls.innerHTML = `
+        <div class="row">
+          <label>Lead (ppm)</label><input id="lead" type="number" step="any" value="100" />
+          <label>Cadmium (ppm)</label><input id="cad" type="number" step="any" value="0.48" />
+          <label>Arsenic (ppm)</label><input id="ars" type="number" step="any" value="10" />
+          <button class="btn" id="runThresh">Run</button>
+        </div>
+      `;
+      document.getElementById('runThresh').onclick = ()=> {
+        const lead = Number(document.getElementById('lead').value);
+        const cad = Number(document.getElementById('cad').value);
+        const ars = Number(document.getElementById('ars').value);
+        const sql = `SELECT ss.ss_samplekey, ss.ss_sampledate, fld.fld_fieldkey, f.f_farmerkey, f.f_name || ' ' || f.f_surname AS farmer_name,
+                     ss.ss_lead_ppm, ss.ss_cadmium_ppm, ss.ss_arsenic_ppm
+                     FROM soilsample ss JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+                     WHERE (ss.ss_lead_ppm IS NOT NULL AND ss.ss_lead_ppm > ${lead})
+                        OR (ss.ss_cadmium_ppm IS NOT NULL AND ss.ss_cadmium_ppm > ${cad})
+                        OR (ss.ss_arsenic_ppm IS NOT NULL AND ss.ss_arsenic_ppm > ${ars})
+                     ORDER BY ss.ss_sampledate DESC;`;
+        runAndRender(sql);
+      };
+      break;
+
+    case 'fields_no_recent_maintenance':
+      setTitle('Fields with no recent maintenance','Fields with no maintenance in last 3 years (or never)');
+      controls.innerHTML = `<button class="btn" id="runNoMaint">Run</button>`;
+      document.getElementById('runNoMaint').onclick = ()=> {
+        const sql = `
+        WITH last_maint AS (
+          SELECT fldm_fieldkey, MAX(fldm_begindate) AS last_begindate
+          FROM fieldmaintenance
+          GROUP BY fldm_fieldkey
+        )
+        SELECT fld.fld_fieldkey AS fieldkey, fld.fld_farmerkey AS farmerkey, TRIM(f.f_name || ' ' || f.f_surname) AS farmer_name, fld.fld_soilkey AS soilkey, lm.last_begindate
+        FROM field fld
+        LEFT JOIN last_maint lm ON fld.fld_fieldkey = lm.fldm_fieldkey
+        LEFT JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+        WHERE lm.last_begindate IS NULL OR lm.last_begindate < date('now', '-3 years')
+        ORDER BY (lm.last_begindate IS NOT NULL), lm.last_begindate;
+        `;
+        runAndRender(sql);
+      };
+      break;
+
+    case 'avg_npk_by_soil_texture':
+      setTitle('Avg NPK by soil texture','Requires >= 5 samples per texture in the DB');
+      controls.innerHTML = `<button class="btn" id="runNPK">Run</button>`;
+      document.getElementById('runNPK').onclick = ()=> {
+        const sql = `
+        SELECT st.st_soil_texture AS soil_texture, COUNT(ss.ss_samplekey) AS sample_count,
+               ROUND(AVG(ss.ss_nitrogen_ppm),2) AS avg_nitrogen_ppm,
+               ROUND(AVG(ss.ss_phosphorus_ppm),2) AS avg_phosphorus_ppm,
+               ROUND(AVG(ss.ss_potassium_ppm),2) AS avg_potassium_ppm,
+               ROUND(AVG(ss.ss_cec),2) AS avg_cec
+        FROM soilsample ss
+        JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
+        JOIN soiltype st ON fld.fld_soilkey = st.st_soilkey
+        GROUP BY st.st_soil_texture
+        HAVING COUNT(ss.ss_samplekey) >= 5
+        ORDER BY st.st_soilkey DESC;
+        `;
+        runAndRender(sql);
+      };
+      break;
+
+    case 'total_yield_per_season':
+      setTitle('Total yield per season','Aggregate total yield by season');
+      controls.innerHTML = `<button class="btn" id="runTotalYield">Run</button>`;
+      document.getElementById('runTotalYield').onclick = ()=> {
+        const sql = `
+        SELECT s.s_seasonkey, s.s_name, ROUND(SUM(fc.fldc_yield),2) AS total_yield, COUNT(fc.fldc_fieldkey) AS plantings_count
+        FROM season s
+        JOIN crop c ON c.c_preferredseason = s.s_seasonkey
+        JOIN fieldcrop fc ON fc.fldc_cropkey = c.c_cropkey
+        GROUP BY s.s_seasonkey, s.s_name
+        ORDER BY total_yield DESC;
+        `;
+        runAndRender(sql);
+      };
+      break;
+
+    case 'crop_rotation_history':
+      setTitle('Crop rotation history','Choose field to view recent rotation');
+      // fields list
+      let fldList = [];
+      try {
+        const res = db.exec("SELECT fld_fieldkey FROM field ORDER BY fld_fieldkey;");
+        if (res && res[0]) fldList = res[0].values.map(r => r[0]);
+      } catch(e){}
+      const fldOpts = fldList.length ? fldList.map(f=>`<option value="${f}">${f}</option>`).join('') : '<option value="">(no fields)</option>';
+      controls.innerHTML = `<div class="row"><label>Field</label><select id="rotField">${fldOpts}</select><button class="btn" id="runRot">Run</button></div>`;
+      document.getElementById('runRot').onclick = ()=> {
+        const fid = document.getElementById('rotField').value;
+        if (!fid) { showNotice('Pick a field', true); return; }
+        const sql = `
+        WITH crop_history AS (
+          SELECT fc.fldc_fieldkey, fc.fldc_cropkey, fc.fldc_enddate,
+                 ROW_NUMBER() OVER (PARTITION BY fc.fldc_fieldkey ORDER BY fc.fldc_enddate DESC) AS rn
+          FROM fieldcrop fc
+          WHERE fc.fldc_fieldkey = ${fid}
+        )
+        SELECT current_harvest.fldc_fieldkey, current_harvest.fldc_cropkey AS current_cropkey, previous_harvest.fldc_cropkey AS previous_cropkey,
+               c1.c_name AS current_crop_name, c2.c_name AS previous_crop_name
+        FROM crop_history current_harvest
+        JOIN crop_history previous_harvest ON current_harvest.fldc_fieldkey = previous_harvest.fldc_fieldkey
+        JOIN crop c1 ON current_harvest.fldc_cropkey = c1.c_cropkey
+        JOIN crop c2 ON previous_harvest.fldc_cropkey = c2.c_cropkey
+        WHERE current_harvest.rn = 1 AND previous_harvest.rn = 2 AND current_harvest.fldc_cropkey <> previous_harvest.fldc_cropkey;
+        `;
+        runAndRender(sql);
+      };
+      break;
+
+    case 'insert_fieldcrop':
+      setTitle('Insert new fieldcrop','Add a planting/harvest (client-side insert)');
+      // populate fields and crops
+      let fldArr = [], cropArr = [];
+      try {
+        const rf = db.exec("SELECT fld_fieldkey FROM field ORDER BY fld_fieldkey;");
+        if (rf && rf[0]) fldArr = rf[0].values.map(r=>r[0]);
+        const rc = db.exec("SELECT c_cropkey, c_name FROM crop ORDER BY c_cropkey;");
+        if (rc && rc[0]) cropArr = rc[0].values;
+      } catch(e){ console.warn(e); }
+      const fieldOpts = fldArr.length ? fldArr.map(f=>`<option value="${f}">${f}</option>`).join('') : '<option value="">(no fields)</option>';
+      const cropOpts = cropArr.length ? cropArr.map(c=>`<option value="${c[0]}">${escapeHtml(c[1])} (${c[0]})</option>`).join('') : '<option value="">(no crops)</option>';
+      controls.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="row"><label>Field</label><select id="insField">${fieldOpts}</select></div>
+          <div class="row"><label>Crop</label><select id="insCrop">${cropOpts}</select></div>
+          <div class="row"><label>Begin date (YYYY-MM-DD)</label><input id="insB" type="text" placeholder="2016-02-15" /></div>
+          <div class="row"><label>End date (YYYY-MM-DD or blank)</label><input id="insE" type="text" placeholder="2016-12-15" /></div>
+          <div class="row"><label>Yield</label><input id="insYield" type="number" step="any" value="0" /></div>
+          <div class="row"><label>Unit</label><input id="insUnit" type="text" value="kg/ha" /></div>
+          <div class="row"><button class="btn" id="doInsertFC">Insert</button><div id="insFCMsg" class="muted-small"></div></div>
+        </div>
+      `;
+      document.getElementById('doInsertFC').onclick = ()=> {
+        const field_id = document.getElementById('insField').value;
+        const crop_id = document.getElementById('insCrop').value;
+        const bdate = document.getElementById('insB').value.trim();
+        const edate = document.getElementById('insE').value.trim();
+        const yieldVal = Number(document.getElementById('insYield').value);
+        const unit = document.getElementById('insUnit').value.trim() || null;
+
+        // validate
+        if (!field_id || !crop_id) { showNotice('Field and crop required', true); return; }
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(bdate)) { showNotice('Begin date must be YYYY-MM-DD', true); return; }
+        if (edate && !/^\d{4}-\d{2}-\d{2}$/.test(edate)) { showNotice('End date must be YYYY-MM-DD or blank', true); return; }
+        if (yieldVal < 0 || isNaN(yieldVal)) { showNotice('Yield must be >= 0', true); return; }
+
+        // Build insert SQL — parameterized via simple string since sql.js doesn't support named JS bindings here
+        const ed = edate ? `'${edate.replace("'", "''")}'` : "NULL";
+        const sql = `INSERT INTO fieldcrop (fldc_fieldkey, fldc_cropkey, fldc_begindate, fldc_enddate, fldc_yield, fldc_yield_unit)
+                     VALUES (${field_id}, ${crop_id}, '${bdate}', ${ed}, ${yieldVal}, ${unit ? ("'" + unit.replace("'", "''") + "'") : "NULL"});`;
+        try {
+          db.run(sql);
+          populateTablesList();
+          document.getElementById('insFCMsg').textContent = "Inserted successfully.";
+          showNotice("Inserted fieldcrop row successfully.", false);
+        } catch (err) {
+          showNotice("Insert failed: " + err, true);
+        }
+      };
+      break;
+
+    case 'insert_soilsample':
+      setTitle('Insert new soilsample','Add a new soil sample (client-side insert)');
+      // fields list
+      let fldA = [];
+      try {
+        const rf = db.exec("SELECT fld_fieldkey FROM field ORDER BY fld_fieldkey;");
+        if (rf && rf[0]) fldA = rf[0].values.map(r=>r[0]);
+      } catch(e){}
+      const fldOpts2 = fldA.length ? fldA.map(f=>`<option value="${f}">${f}</option>`).join('') : '<option value="">(no fields)</option>';
+      controls.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="row"><label>Field</label><select id="sField">${fldOpts2}</select></div>
+          <div class="row"><label>Sample date (YYYY-MM-DD)</label><input id="sDate" type="text" placeholder="YYYY-MM-DD" /></div>
+          <div class="row"><label>pH (3.0 - 9.0)</label><input id="sPH" type="number" step="any" value="6.5" /></div>
+          <div class="row"><label>Nitrogen ppm (>=0)</label><input id="sN" type="number" step="any" value="0" /></div>
+          <div class="row"><label>Phosphorus ppm (>=0)</label><input id="sP" type="number" step="any" value="0" /></div>
+          <div class="row"><label>Potassium ppm (>=0)</label><input id="sK" type="number" step="any" value="0" /></div>
+          <div class="row"><label>Organic matter % (>=0)</label><input id="sOM" type="number" step="any" value="0" /></div>
+          <div class="row"><button class="btn" id="doInsertSS">Insert</button><div id="insSSMsg" class="muted-small"></div></div>
+        </div>
+      `;
+      document.getElementById('doInsertSS').onclick = ()=> {
+        const field_id = document.getElementById('sField').value;
+        const sdate = document.getElementById('sDate').value.trim();
+        const ph = Number(document.getElementById('sPH').value);
+        const nppm = Number(document.getElementById('sN').value);
+        const pppm = Number(document.getElementById('sP').value);
+        const kppm = Number(document.getElementById('sK').value);
+        const om = Number(document.getElementById('sOM').value);
+        // validations
+        if (!field_id) { showNotice('Field required', true); return; }
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(sdate)) { showNotice('Sample date must be YYYY-MM-DD', true); return; }
+        if (isNaN(ph) || ph < 3.0 || ph > 9.0) { showNotice('pH out of range 3.0-9.0', true); return;}
+        if ([nppm,pppm,kppm,om].some(v => isNaN(v) || v < 0)) { showNotice('N/P/K/OM must be >= 0', true); return; }
+        const sql = `INSERT INTO soilsample (ss_fieldkey, ss_sampledate, ss_ph, ss_nitrogen_ppm, ss_phosphorus_ppm, ss_potassium_ppm, ss_organicmatter_pct)
+                     VALUES (${field_id}, '${sdate}', ${ph}, ${nppm}, ${pppm}, ${kppm}, ${om});`;
+        try {
+          db.run(sql);
+          populateTablesList();
+          document.getElementById('insSSMsg').textContent = "Inserted successfully.";
+          showNotice("Inserted soilsample row successfully.", false);
+        } catch (err) {
+          showNotice("Insert failed: " + err, true);
+        }
+      };
+      break;
+
+    default:
+      showNotice('Unknown action: '+name, true);
+  }
+}
+
+/* initialize a default notice */
+function defaultNotice(){
+  document.getElementById('result').innerHTML = '<div class="notice">Upload an <code>aims.sqlite</code> file then choose an action. All work is client-side.</div>';
+}
+defaultNotice();
+</script>
+</body>
+</html>
