@@ -149,8 +149,37 @@ void show_all_fields(DB &db) {
 }
 
 void crops_by_season(DB &db) {
-    cout << "Enter season_id: ";
-    int sid; cin >> sid; cin.ignore();
+    // cout << "Enter season_id: ";
+    // int sid; cin >> sid; cin.ignore();
+
+    cout << "Enter season name (e.g. Winter): ";
+    string sName;
+    getline(cin, sName);
+
+    if (sName == "Fall") sName = "Autumn";
+
+    int sid = -1;
+    {
+        string q = "SELECT s_seasonkey FROM season WHERE s_name = ?;";
+        sqlite3_stmt* stmt;
+
+        if (sqlite3_prepare_v2(db.db, q.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+            cout << "Prepare error\n"; return;
+        }
+
+        sqlite3_bind_text(stmt, 1, sName.c_str(), -1, SQLITE_TRANSIENT);
+
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            sid = sqlite3_column_int(stmt, 0);
+        }
+        sqlite3_finalize(stmt);
+    }
+
+    if (sid == -1) {
+        cout << "Season not found.\n";
+        return;
+    }
+
     if (!db.id_exists("season", "s_seasonkey", sid)) {
         cout << "Season id not found.\n"; return;
     }
@@ -476,7 +505,7 @@ int main(int argc, char** argv) {
             case 9: crop_rotation_history(db); break;
             case 10: insert_fieldcrop(db); break;
             case 11: insert_soilsample(db); break;
-            case 0: cout << "Goodbye.\n"; db.close(); return 0;
+            case 0: cout << "Goodbye!\n"; db.close(); return 0;
             default: cout << "Unknown option.\n";
         }
     }
