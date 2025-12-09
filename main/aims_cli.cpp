@@ -27,6 +27,14 @@ bool file_exists(const string &path) {
     return true;
 }
 
+void clearScreen() {
+#ifdef _WIN32
+    system("cls"); // For Windows
+#else
+    system("clear"); // For Unix-like systems
+#endif
+}
+
 bool valid_date(const string &d) {
     // Simple YYYY-MM-DD format check (not fully validating days/months/leap years)
     std::regex re(R"(^\d{4}-\d{2}-\d{2}$)");
@@ -513,6 +521,8 @@ int main(int argc, char** argv) {
     }
 
     while (true) {
+        // system("clear");
+        clearScreen();
         show_menu();
         int opt; if (!(cin >> opt)) { cout << "Invalid input. Exiting.\n"; break; }
         cin.ignore();
