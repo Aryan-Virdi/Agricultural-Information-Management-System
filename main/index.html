@@ -409,6 +409,11 @@ function latest_soil_sample_for_field() {
       function renderIndex() {
         clearMain();  // clear all old content
 
+        const counter = document.createElement('div'); 
+        counter.className = 'small muted';
+        counter.textContent = `Viewing ${index + 1} of ${sqls.length}`;
+        main.appendChild(counter);
+
         // render result
         try {
           const ps = db.prepare(sqls[index]);
