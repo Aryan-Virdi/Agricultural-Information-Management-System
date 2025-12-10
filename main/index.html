@@ -360,19 +360,23 @@ function avg_yield_per_field(){
   runSelectAndRender("SELECT fldc_fieldkey AS fieldkey, ROUND(AVG(fldc_yield), 2) AS avg_yield, COUNT(fldc_fieldkey) AS observations FROM fieldcrop GROUP BY fldc_fieldkey ORDER BY fldc_fieldkey;");
 }
 
-function latest_soil_sample_for_field(){
+
+
+function latest_soil_sample_for_field() {
   clearMain();
   const main = document.getElementById('mainBody');
-  const card = document.createElement('div'); card.className='card';
-  card.innerHTML = `
+
+  // Prompt card
+  const promptCard = document.createElement('div'); 
+  promptCard.className = 'card';
+  promptCard.innerHTML = `
     <div class="small muted">Enter field_id to view latest soilsample (view additional stacks: 1 -> 2 -> 3)</div>
     <div class="row">
       <label>Field ID</label><input id="fieldIdInput" class="input" placeholder="1" />
       <button id="runFieldSample" class="btn">Run</button>
     </div>
-    <div id="sampleControls" style="margin-top:8px"></div>
   `;
-  main.appendChild(card);
+  main.appendChild(promptCard);
 
   const sqls = [
     `SELECT ss_samplekey AS Sample, ss_fieldkey AS Field, ss_sampledate AS Date, ss_sand AS Sand, ss_silt AS Silt, ss_clay AS Clay, ss_ph AS pH, ss_nitrogen_ppm AS N, ss_phosphorus_ppm AS P, ss_potassium_ppm AS K, ss_organicmatter_pct AS "OM%", ss_cec AS CEC FROM soilsample WHERE ss_fieldkey = ? ORDER BY ss_sampledate DESC LIMIT 1;`,
@@ -380,58 +384,73 @@ function latest_soil_sample_for_field(){
     `SELECT ss_comment AS comment FROM soilsample WHERE ss_fieldkey = ? ORDER BY ss_sampledate DESC LIMIT 1;`
   ];
 
-  let index = 0;
-  document.getElementById('runFieldSample').onclick = ()=>{
+  document.getElementById('runFieldSample').onclick = () => {
     const fid = parseInt(document.getElementById('fieldIdInput').value);
-    if (isNaN(fid)) { renderError({message:'Invalid field id'}); return; }
-    // check existence
+    if (isNaN(fid)) { renderError({ message: 'Invalid field id' }); return; }
+
     try {
+      // Check field existence
       const stmt = db.prepare("SELECT 1 FROM field WHERE fld_fieldkey = ? LIMIT 1;");
       stmt.bind([fid]);
       const ok = stmt.step();
       stmt.free();
-      if (!ok) { renderError({message:'Field not found.'}); return; }
-      index = 0;
-      clearMain(); // show output only
-      // run the three queries one by one but provide "View more" similar behavior
-      runOne();
-      function runOne(){
-        const card2 = document.createElement('div'); card2.className='card';
-        const sql = sqls[index];
+      if (!ok) { renderError({ message: 'Field not found.' }); return; }
+
+      clearMain();
+
+      // Create fixed result and control containers
+      const resultCard = document.createElement('div'); resultCard.className = 'card';
+      const controlCard = document.createElement('div'); controlCard.className = 'card';
+      main.appendChild(resultCard);
+      main.appendChild(controlCard);
+
+      let index = 0;
+
+      function renderIndex() {
+        clearMain();  // clear all old content
+
+        // render result
         try {
-          const ps = db.prepare(sql);
+          const ps = db.prepare(sqls[index]);
           ps.bind([fid]);
           const rows = [];
-          while(ps.step()){ rows.push(ps.getAsObject()); }
+          while (ps.step()) { rows.push(ps.getAsObject()); }
           ps.free();
+
           if (rows.length === 0) {
-            card2.innerHTML = '<div class="small muted">(no sample rows)</div>';
-            document.getElementById('mainBody').appendChild(card2);
+            const noData = document.createElement('div'); 
+            noData.className = 'small muted'; 
+            noData.textContent = '(no data)';
+            main.appendChild(noData);
           } else {
-            renderQueryResult([{columns:Object.keys(rows[0]), values: rows.map(r=>Object.values(r))}]);
+            renderQueryResult([{columns: Object.keys(rows[0]), values: rows.map(r=>Object.values(r))}]);
           }
-        } catch(e){ renderError(e); }
-        // "View more" prompt
-        const ctrl = document.createElement('div'); ctrl.className='card';
-        const moreBtn = document.createElement('button'); moreBtn.className='btn'; moreBtn.textContent = 'View more (Y)';
-        const doneBtn = document.createElement('button'); doneBtn.className='btn secondary'; doneBtn.textContent = 'Done (N)';
-        ctrl.appendChild(moreBtn); ctrl.appendChild(doneBtn);
-        document.getElementById('mainBody').appendChild(ctrl);
-        moreBtn.onclick = ()=>{
-          index++;
-          if (index < sqls.length) {
-            // remove last two controls and continue
-            clearMain();
-            runOne();
-          } else {
-            renderMessage('(no more)');
-          }
-        };
-        doneBtn.onclick = ()=>{ renderMessage('Done.'); };
+        } catch(e) { renderError(e); }
+
+        // render controls below
+        const ctrl = document.createElement('div'); ctrl.className = 'card';
+        const prevBtn = document.createElement('button'); prevBtn.className = 'btn secondary'; prevBtn.textContent = 'Previous';
+        const nextBtn = document.createElement('button'); nextBtn.className = 'btn'; nextBtn.textContent = 'Next';
+        const doneBtn = document.createElement('button'); doneBtn.className = 'btn secondary'; doneBtn.textContent = 'Done';
+        ctrl.appendChild(prevBtn); ctrl.appendChild(nextBtn); ctrl.appendChild(doneBtn);
+        main.appendChild(ctrl);
+
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === sqls.length - 1;
+
+        prevBtn.onclick = ()=>{ if(index>0){ index--; renderIndex(); } };
+        nextBtn.onclick = ()=>{ if(index<sqls.length-1){ index++; renderIndex(); } };
+        doneBtn.onclick = ()=>{ clearMain(); main.appendChild(promptCard); };
       }
-    } catch(e) { renderError(e); }
+
+
+      renderIndex();
+
+    } catch (e) { renderError(e); }
   };
 }
+
+
 
 function samples_exceeding_thresholds(){
   clearMain();
