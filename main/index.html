@@ -612,41 +612,99 @@ function insert_soilsample(){
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `
     <h4>Insert new soilsample entry</h4>
-    <div class="small muted">field_id, sample_date (YYYY-MM-DD), ph (3.0-9.0), nitrogen_ppm >=0, phosphorus_ppm >=0, potassium_ppm >=0, organic_matter_pct >=0</div>
-    <div class="row"><label>field_id</label><input id="is_field" class="input" /></div>
-    <div class="row"><label>sample_date</label><input id="is_date" class="input" placeholder="YYYY-MM-DD" /></div>
-    <div class="row"><label>ph</label><input id="is_ph" class="input" /></div>
-    <div class="row"><label>nitrogen_ppm</label><input id="is_n" class="input" /></div>
-    <div class="row"><label>phosphorus_ppm</label><input id="is_p" class="input" /></div>
-    <div class="row"><label>potassium_ppm</label><input id="is_k" class="input" /></div>
-    <div class="row"><label>organic_matter_pct</label><input id="is_om" class="input" /></div>
+    
+    <hr/>
+
+    <div class="row"><label>Field ID</label><input id="ss_field" class="input" /></div>
+    <div class="row"><label>Sample Date</label><input id="ss_date" class="input" placeholder="YYYY-MM-DD" /></div>
+
+    <hr/>
+
+    <div class="row"><label>Sand (%)</label><input id="ss_sand" class="input" /></div>
+    <div class="row"><label>Silt (%)</label><input id="ss_silt" class="input" /></div>
+    <div class="row"><label>Clay (%)</label><input id="ss_clay" class="input" /></div>
+
+    <hr/>
+
+    <div class="row"><label>pH</label><input id="ss_ph" class="input" /></div>
+    <div class="row"><label>Nitrogen (ppm)</label><input id="ss_n" class="input" /></div>
+    <div class="row"><label>Phosphorus (ppm)</label><input id="ss_p" class="input" /></div>
+    <div class="row"><label>Potassium (ppm)</label><input id="ss_k" class="input" /></div>
+
+    <hr/>
+
+    <div class="row"><label>Organic Matter (%)</label><input id="ss_om" class="input" /></div>
+    <div class="row"><label>CEC</label><input id="ss_cec" class="input" /></div>
+
+    <hr/>
+
+    <div class="row"><label>Lead (ppm)</label><input id="ss_pb" class="input" /></div>
+    <div class="row"><label>Mercury (ppm)</label><input id="ss_hg" class="input" /></div>
+    <div class="row"><label>Nickel (ppm)</label><input id="ss_ni" class="input" /></div>
+    <div class="row"><label>Copper (ppm)</label><input id="ss_cu" class="input" /></div>
+    <div class="row"><label>Chromium (ppm)</label><input id="ss_cr" class="input" /></div>
+    <div class="row"><label>Cadmium (ppm)</label><input id="ss_cd" class="input" /></div>
+    <div class="row"><label>Arsenic (ppm)</label><input id="ss_as" class="input" /></div>
+    <div class="row"><label>Zinc (ppm)</label><input id="ss_zn" class="input" /></div>
+
+    <hr/>
+
+    <div class="row"><label>Comments</label>
+      <input id="ss_comment" class="input" placeholder="Optional text" style="min-width:300px;" />
+    </div>
+
     <div style="margin-top:8px"><button id="is_run" class="btn">Insert</button></div>
   `;
   main.appendChild(card);
 
   document.getElementById('is_run').onclick = ()=>{
-    const field_id = parseInt(document.getElementById('is_field').value);
-    const sdate = document.getElementById('is_date').value.trim();
-    const ph = parseFloat(document.getElementById('is_ph').value);
-    const nppm = parseFloat(document.getElementById('is_n').value);
-    const pppm = parseFloat(document.getElementById('is_p').value);
-    const kppm = parseFloat(document.getElementById('is_k').value);
-    const om = parseFloat(document.getElementById('is_om').value);
+    const field_id = parseInt(document.getElementById('ss_field').value);
+    const sdate = document.getElementById('ss_date').value.trim();
+
+    const sand = parseFloat(document.getElementById('ss_sand').value);
+    const silt = parseFloat(document.getElementById('ss_silt').value);
+    const clay = parseFloat(document.getElementById('ss_clay').value);
+
+    const ph = parseFloat(document.getElementById('ss_ph').value);
+
+    const nppm = parseFloat(document.getElementById('ss_n').value);
+    const pppm = parseFloat(document.getElementById('ss_p').value);
+    const kppm = parseFloat(document.getElementById('ss_k').value);
+
+    const om = parseFloat(document.getElementById('ss_om').value);
+    const cec = parseFloat(document.getElementById('ss_cec').value);
+
+    const lead = parseFloat(document.getElementById('ss_pb').value);
+    const mercury = parseFloat(document.getElementById('ss_hg').value);
+    const nickel = parseFloat(document.getElementById('ss_ni').value);
+    const copper = parseFloat(document.getElementById('ss_cu').value);
+    const chromium = parseFloat(document.getElementById('ss_cr').value);
+    const cadmium = parseFloat(document.getElementById('ss_cd').value);
+    const arsenic = parseFloat(document.getElementById('ss_as').value);
+    const zinc = parseFloat(document.getElementById('ss_zn').value);
+
+    const comment = document.getElementById('ss_comment').value.trim();
 
     if (isNaN(field_id)){ renderError({message:'Invalid field id'}); return; }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(sdate)){ renderError({message:'Invalid date format'}); return; }
-    if (isNaN(ph) || ph<3.0 || ph>9.0){ renderError({message:'ph out of expected range (3.0 - 9.0)'}); return; }
-    if ([nppm,pppm,kppm,om].some(v => isNaN(v) || v < 0)){ renderError({message:'NPK and organic matter must be >= 0'}); return; }
+    if (isNaN(ph) || ph<0.0 || ph>14.0){ renderError({message:'ph out of expected range (0.0 - 14.0)'}); return; }
+    if ([sand,silt,clay,nppm,pppm,kppm,om,cec,lead,mercury,nickel,copper,chromium,cadmium,arsenic,zinc].some(v => isNaN(v) || v < 0)){ renderError({message:'Soil components, NPK, organic matter, cec, and heavy metals must be >= 0'}); return; }
 
     try {
       const ch = db.prepare("SELECT 1 FROM field WHERE fld_fieldkey = ? LIMIT 1;"); ch.bind([field_id]); if (!ch.step()){ ch.free(); renderError({message:'Field id not found.'}); return; } ch.free();
-      const sql = `INSERT INTO soilsample (ss_fieldkey, ss_sampledate, ss_ph, ss_nitrogen_ppm, ss_phosphorus_ppm, ss_potassium_ppm, ss_organicmatter_pct)
-                   VALUES (?, ?, ?, ?, ?, ?, ?);`;
+
+      const prepKey = db.prepare("SELECT (COALESCE(MAX(ss_samplekey), 0) + 1) AS nextKey FROM soilsample;"); 
+      prepKey.step();
+      const nextPrimaryKey = prepKey.getAsObject().nextKey;
+      prepKey.free();
+
+      const sql = `INSERT INTO soilsample (ss_samplekey, ss_fieldkey, ss_sampledate, ss_sand, ss_silt, ss_clay, ss_ph, ss_nitrogen_ppm, ss_phosphorus_ppm, ss_potassium_ppm, ss_organicmatter_pct, ss_cec, ss_lead_ppm, ss_mercury_ppm, ss_nickel_ppm, ss_copper_ppm, ss_chromium_ppm, ss_cadmium_ppm, ss_arsenic_ppm, ss_zinc_ppm, ss_comment)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
       const ps = db.prepare(sql);
-      ps.bind([field_id, sdate, ph, nppm, pppm, kppm, om]);
+      ps.bind([nextPrimaryKey, field_id, sdate, sand, silt, clay, ph, nppm, pppm, kppm, om, cec, lead, mercury, nickel, copper, chromium, cadmium, arsenic, zinc, comment]);
       ps.step();
       ps.free();
-      renderMessage('Inserted soilsample row successfully.');
+      renderMessage('Inserted soil sample successfully.');
       enableDownload();
     } catch(e){ renderError(e); }
   };
