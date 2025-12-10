@@ -303,7 +303,7 @@ function clearMain(){
 function show_all_fields(){
   clearMain();
   const main = document.getElementById('mainBody');
-  runSelectAndRender("SELECT fld_fieldkey AS id, fld_farmerkey AS farmer_id, fld_soilkey AS soil_type, st_soil_texture AS soil_texture FROM field JOIN soiltype ON fld_soilkey = st_soilkey ORDER BY fld_fieldkey ASC;");
+  runSelectAndRender("SELECT fld_fieldkey AS Field, f_name || ' ' || f_surname AS Farmer, fld_soilkey AS 'Soil Key', st_soil_texture AS 'Soil Texture' FROM field JOIN soiltype ON fld_soilkey = st_soilkey JOIN farmer ON fld_farmerkey = f_farmerkey ORDER BY fld_fieldkey ASC;");
 }
 
 function crops_by_season(){
