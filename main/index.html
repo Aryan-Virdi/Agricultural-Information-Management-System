@@ -334,10 +334,11 @@ function crops_by_season(){
       stmt.free();
       if (sid === null) { renderError({message: 'Season not found.'}); return; }
       // query with parameter
-      const sql = `SELECT s.s_name AS season, c.c_name AS crop, COUNT(fc.fldc_fieldkey) as plantings
-                   FROM season s JOIN crop c ON c.c_preferredseason = s.s_seasonkey
+      const sql = `SELECT s.s_name AS Season, c.c_name AS Crop, COUNT(fc.fldc_fieldkey) as Plantings FROM season s 
+                   JOIN crop c ON c.c_preferredseason = s.s_seasonkey
                    LEFT JOIN fieldcrop fc ON fc.fldc_cropkey = c.c_cropkey
-                   WHERE s.s_seasonkey = ? GROUP BY c.c_cropkey;`;
+                   WHERE s.s_seasonkey = ? 
+                   GROUP BY c.c_cropkey;`;
       // prepare and step
       const ps = db.prepare(sql);
       ps.bind([sid]);
@@ -357,7 +358,7 @@ function crops_by_season(){
 
 function avg_yield_per_field(){
   clearMain();
-  runSelectAndRender("SELECT fldc_fieldkey AS fieldkey, ROUND(AVG(fldc_yield), 2) AS avg_yield, COUNT(fldc_fieldkey) AS observations FROM fieldcrop GROUP BY fldc_fieldkey ORDER BY fldc_fieldkey;");
+  runSelectAndRender("SELECT fldc_fieldkey AS 'Field Key', ROUND(AVG(fldc_yield), 2) AS 'Average Yield', COUNT(fldc_fieldkey) AS Observations FROM fieldcrop GROUP BY fldc_fieldkey ORDER BY fldc_fieldkey;");
 }
 
 
@@ -381,7 +382,7 @@ function latest_soil_sample_for_field() {
   const sqls = [
     `SELECT ss_samplekey AS Sample, ss_fieldkey AS Field, ss_sampledate AS Date, ss_sand AS Sand, ss_silt AS Silt, ss_clay AS Clay, ss_ph AS pH, ss_nitrogen_ppm AS N, ss_phosphorus_ppm AS P, ss_potassium_ppm AS K, ss_organicmatter_pct AS "OM%", ss_cec AS CEC FROM soilsample WHERE ss_fieldkey = ? ORDER BY ss_sampledate DESC LIMIT 1;`,
     `SELECT ss_lead_ppm AS Lead, ss_mercury_ppm AS Mercury, ss_nickel_ppm AS Nickel, ss_copper_ppm AS Copper, ss_chromium_ppm AS Chromium, ss_cadmium_ppm AS Cadmium, ss_arsenic_ppm AS Arsenic, ss_zinc_ppm AS Zinc FROM soilsample WHERE ss_fieldkey = ? ORDER BY ss_sampledate DESC LIMIT 1;`,
-    `SELECT ss_comment AS comment FROM soilsample WHERE ss_fieldkey = ? ORDER BY ss_sampledate DESC LIMIT 1;`
+    `SELECT ss_comment AS Comment FROM soilsample WHERE ss_fieldkey = ? ORDER BY ss_sampledate DESC LIMIT 1;`
   ];
 
   document.getElementById('runFieldSample').onclick = () => {
@@ -475,8 +476,10 @@ function samples_exceeding_thresholds(){
     const cad  = parseFloat(document.getElementById('cadLimit').value);
     const arsen = parseFloat(document.getElementById('asLimit').value);
     if (isNaN(lead) || isNaN(cad) || isNaN(arsen)) { renderError({message:'Invalid numeric thresholds'}); return; }
-    const sql = `SELECT ss.ss_samplekey, ss.ss_sampledate, fld.fld_fieldkey, f.f_farmerkey, f.f_name || ' ' || f.f_surname AS farmer_name, ss.ss_lead_ppm, ss.ss_cadmium_ppm, ss.ss_arsenic_ppm
-                 FROM soilsample ss JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+    const sql = `SELECT ss.ss_samplekey AS 'Sample Key', ss.ss_sampledate AS Date, fld.fld_fieldkey AS 'Field Key', f.f_farmerkey AS 'Farmer Key', f.f_name || ' ' || f.f_surname AS Farmer, ss.ss_lead_ppm AS Lead, ss.ss_cadmium_ppm AS Cadmium, ss.ss_arsenic_ppm AS Arsenic
+                 FROM soilsample ss 
+                 JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey 
+                 JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
                  WHERE (ss.ss_lead_ppm IS NOT NULL AND ss.ss_lead_ppm > ?) OR (ss.ss_cadmium_ppm IS NOT NULL AND ss.ss_cadmium_ppm > ?) OR (ss.ss_arsenic_ppm IS NOT NULL AND ss.ss_arsenic_ppm > ?)
                  ORDER BY ss.ss_sampledate DESC;`;
     // prepared
@@ -499,7 +502,7 @@ function fields_no_recent_maintenance(){
       FROM fieldmaintenance
       GROUP BY fldm_fieldkey
     )
-    SELECT fld.fld_fieldkey AS fieldkey, fld.fld_farmerkey AS farmerkey, TRIM(f.f_name || ' ' || f.f_surname) AS farmer_name, fld.fld_soilkey AS soilkey, lm.last_begindate
+    SELECT fld.fld_fieldkey AS 'Field Key', fld.fld_farmerkey AS 'Farmer Key', TRIM(f.f_name || ' ' || f.f_surname) AS Farmer, fld.fld_soilkey AS 'Soil Key', lm.last_begindate AS 'Last Begin Date'
     FROM field fld
     LEFT JOIN last_maint lm ON fld.fld_fieldkey = lm.fldm_fieldkey
     LEFT JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
@@ -511,11 +514,12 @@ function fields_no_recent_maintenance(){
 
 function avg_npk_by_soil_texture(){
   clearMain();
-  const sql = `SELECT st.st_soil_texture AS soil_texture, COUNT(ss.ss_samplekey) AS sample_count,
-           ROUND(AVG(ss.ss_nitrogen_ppm),2) AS avg_N,
-           ROUND(AVG(ss.ss_phosphorus_ppm),2) AS avg_P,
-           ROUND(AVG(ss.ss_potassium_ppm),2) AS avg_K,
-           ROUND(AVG(ss.ss_cec),2) AS avg_cec
+  const sql = `SELECT st.st_soil_texture AS 'Soil Texture',
+           COUNT(ss.ss_samplekey) AS 'Sample Count',
+           ROUND(AVG(ss.ss_nitrogen_ppm),2) AS 'Average N',
+           ROUND(AVG(ss.ss_phosphorus_ppm),2) AS 'Average P',
+           ROUND(AVG(ss.ss_potassium_ppm),2) AS 'Average K',
+           ROUND(AVG(ss.ss_cec),2) AS 'Average CEC'
     FROM soilsample ss
     JOIN field fld ON ss.ss_fieldkey = fld.fld_fieldkey
     JOIN soiltype st ON fld.fld_soilkey = st.st_soilkey
@@ -527,12 +531,12 @@ function avg_npk_by_soil_texture(){
 
 function total_yield_per_season(){
   clearMain();
-  const sql = `SELECT s.s_seasonkey, s.s_name, ROUND(SUM(fc.fldc_yield),2) AS total_yield, COUNT(fc.fldc_fieldkey) AS plantings_count
+  const sql = `SELECT s.s_seasonkey AS 'Season Key', s.s_name AS 'Season', ROUND(SUM(fc.fldc_yield),2) AS 'Total Yield', COUNT(fc.fldc_fieldkey) AS 'Plantings Count'
     FROM season s
     JOIN crop c ON c.c_preferredseason = s.s_seasonkey
     JOIN fieldcrop fc ON fc.fldc_cropkey = c.c_cropkey
     GROUP BY s.s_seasonkey, s.s_name
-    ORDER BY total_yield DESC;`;
+    ORDER BY 'Total Yield' DESC;`;
   runSelectAndRender(sql);
 }
 
@@ -563,8 +567,8 @@ function crop_rotation_history(){
       FROM fieldcrop fc
       WHERE fc.fldc_fieldkey = ?
     )
-    SELECT current_harvest.fldc_fieldkey, current_harvest.fldc_cropkey AS current_cropkey, previous_harvest.fldc_cropkey AS previous_cropkey,
-           c1.c_name AS current_crop_name, c2.c_name AS previous_crop_name
+    SELECT current_harvest.fldc_fieldkey AS 'Field Key', current_harvest.fldc_cropkey AS 'Current Crop Key', previous_harvest.fldc_cropkey AS 'Previous Crop Key',
+           c1.c_name AS 'Current Crop', c2.c_name AS 'Previous Crop'
     FROM crop_history current_harvest
     JOIN crop_history previous_harvest ON current_harvest.fldc_fieldkey = previous_harvest.fldc_fieldkey
     JOIN crop c1 ON current_harvest.fldc_cropkey = c1.c_cropkey
