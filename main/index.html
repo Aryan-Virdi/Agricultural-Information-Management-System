@@ -163,7 +163,8 @@ const MENU_ITEMS = [
   { id:10, title:"Insert new fieldcrop", fn:"insert_fieldcrop" },
   { id:11, title:"Insert new soilsample", fn:"insert_soilsample" },
   { id:12, title:"Soil Stats Per Field", fn:"soil_stats_per_field"},
-  { id:13, title:"Heavy Metals For Farmer", fn:"heavy_metal_samples_for_farmer"}
+  { id:13, title:"Heavy Metals For Farmer", fn:"heavy_metal_samples_for_farmer"},
+  { id:14, title:"Top Crop Producers", fn:"top_producing_farmers"}
 ];
 
 let SQL = null;         // sql.js object
@@ -456,6 +457,30 @@ function heavy_metal_samples_for_farmer() {
       renderError(e);
     }
   };
+}
+
+function top_producing_farmers(){
+  clearMain();
+  const sql = `
+      WITH
+      total_yields_by_farmer_by_crop AS (
+        SELECT 
+          f.f_name || ' ' || f.f_surname AS Farmer,
+          c.c_name AS Crop,
+          SUM(fldc.fldc_yield) AS Yield,
+          fldc.fldc_yield_unit AS Units
+        FROM fieldcrop fldc
+        JOIN field fld ON fldc.fldc_fieldkey = fld.fld_fieldkey
+        JOIN crop c ON fldc.fldc_cropkey = c.c_cropkey
+        JOIN farmer f ON fld.fld_farmerkey = f.f_farmerkey
+        GROUP BY f.f_farmerkey, c.c_cropkey, Units
+      )
+      SELECT Farmer, Crop, MAX(Yield) AS Total_Yield, Units
+      FROM total_yields_by_farmer_by_crop
+      GROUP BY Crop
+      ORDER BY Crop ASC;
+    `;
+  runSelectAndRender(sql);
 }
 
 function crops_by_season(){
